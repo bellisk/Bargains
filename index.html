@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Bargains</title>
+    </head>
+    <body style="background: #333333;">
+        <canvas width="800" height="600" id="gameCanvas" onkeydown="canvasKeyDown" onkeyup="canvasKeyUp"></canvas>
+<script type="text/javascript">
+const FRAMERATE = 60;
+const SPF = 1.0 / FRAMERATE;
+
+var tileTypes = {};
+tileTypes.stoneFloor = {
+    name: "stoneFloor",
+    sx: 0,
+    sy: 0,
+    wall: false
+};
+
+tileTypes.stoneWall = {
+    name: "stoneWall",
+    sx: 1,
+    sy: 0,
+    wall: true
+};
+
+var creatureTypes = {};
+
+creatureTypes.player = {
+    name: "player",
+    sx: 2,
+    sy: 0,
+    speed: 1 * SPF
+};
+
+var currentLevel = {
+    map: [],
+    player: {
+        type: creatureTypes.player,
+        x: 3,
+        y: 3
+    }
+};
+
+var scrollX = 0;
+var scrollY = 0;
+
+for (var y = 0; y < 100; y++) {
+    var row = [];
+    for (var x = 0; x < 100; x++) {
+        row.push({
+            type: (y % 8 == 0 || x % 8 == 0) && !((y + 2) % 8 == 0 || (x + 2) % 8 == 0) ? tileTypes.stoneWall : tileTypes.stoneFloor
+        });
+    }
+    currentLevel.map.push(row);
+}
+
+const GRID_SIZE = 16;
+const GRID_HEIGHT = 8;
+const SCALE = 2;
+var canvas = document.getElementById("gameCanvas");
+var buffer = document.createElement("canvas");
+buffer.width = canvas.width / SCALE;
+buffer.height = canvas.height / SCALE;
+var canvasContext = canvas.getContext("2d");
+var c = buffer.getContext("2d");
+var keys = {"fish":"jam"};
+var graphicsImage = new Image();
+graphicsImage.src = "graphicsImage.png";
+
+var fps = "?";
+var msBuffer = [];
+
+function update(ms) {
+    msBuffer.push(ms);
+    if (msBuffer.length > 10) {
+        msBuffer.shift();
+    }
+    fps = Math.round(1000 / (msBuffer.reduce(function(a, b) { return a + b; }, 0.0) / msBuffer.length));
+    
+    if (keyDown("w")) { currentLevel.player.y -= currentLevel.player.type.speed; }
+    if (keyDown("a")) { currentLevel.player.x -= currentLevel.player.type.speed; }
+    if (keyDown("s")) { currentLevel.player.y += currentLevel.player.type.speed; }
+    if (keyDown("d")) { currentLevel.player.x += currentLevel.player.type.speed; }
+}
+
+function drawCreature(creature) {
+    gblit(creature.type.sx, creature.type.sy, creature.x * GRID_SIZE + scrollX, creature.y * GRID_HEIGHT + scrollY);
+}
+
+function draw() {
+    c.fillStyle = "black";
+    c.fillRect(0, 0, 800, 600);
+    for (var y = 0; y < currentLevel.map.length; y++) {
+        for (var x = 0; x < currentLevel.map[y].length; x++) {
+            gblit(currentLevel.map[y][x].type.sx, currentLevel.map[y][x].type.sy, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
+        }
+    }
+    drawCreature(currentLevel.player);
+    c.fillStyle = "white";
+    c.fillText(fps, 10, 10);
+    var y = 30;
+    for (var k in keys) { c.fillText(k + ": " + keys[k], 10, y += 20);}
+}
+
+function canvasKeyDown(e) {
+    keys["fish"];
+    keys[e.which] = true;
+}
+
+function canvasKeyUp(e) {
+    keys[e.which] = false;
+}
+
+function keyDown(key) {
+    return !!keys[key];
+}
+
+function blit(img, sx, sy, sw, sh, dx, dy, dw, dh) {
+    if (dx > buffer.width || dy > buffer.height || dx + dw < 0 || dy + dh < 0) { return; }
+    c.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+}
+
+function gblit(sx, sy, dx, dy) {
+    blit(graphicsImage, sx * (GRID_SIZE + 1), sy * (GRID_SIZE + 1), GRID_SIZE, GRID_SIZE, dx, dy, GRID_SIZE, GRID_SIZE);
+}
+
+var lastUpdate = new Date().getTime();
+
+setInterval(function() {
+    var currentTime = new Date().getTime();
+    update(currentTime - lastUpdate);
+    draw();
+    canvasContext.drawImage(buffer, 0, 0, 800, 600);
+    lastUpdate = currentTime;
+}, 1000.0 * SPF);
+</script>
+    </body>
+</html
