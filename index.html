@@ -5,7 +5,8 @@
         <title>Bargains</title>
     </head>
     <body style="background: #333333;">
-        <canvas width="800" height="600" id="gameCanvas" onkeydown="canvasKeyDown" onkeyup="canvasKeyUp"></canvas>
+        <canvas width="800" height="600" id="gameCanvas"></canvas>
+<script src="jQuery.js"></script>
 <script type="text/javascript">
 const FRAMERATE = 60;
 const SPF = 1.0 / FRAMERATE;
@@ -31,7 +32,7 @@ creatureTypes.player = {
     name: "player",
     sx: 2,
     sy: 0,
-    speed: 1 * SPF
+    speed: 4 * SPF
 };
 
 var currentLevel = {
@@ -64,13 +65,68 @@ var buffer = document.createElement("canvas");
 buffer.width = canvas.width / SCALE;
 buffer.height = canvas.height / SCALE;
 var canvasContext = canvas.getContext("2d");
+canvasContext.imageSmoothingEnabled = false;
 var c = buffer.getContext("2d");
-var keys = {"fish":"jam"};
+var keys = {};
 var graphicsImage = new Image();
 graphicsImage.src = "graphicsImage.png";
 
 var fps = "?";
 var msBuffer = [];
+
+function tileAt(x, y) {
+    return currentLevel.map[Math.floor(y)][Math.floor(x)];
+}
+
+function moveCreature(creature, dx, dy) {
+    if (dx > 0) {
+        var newX = creature.x + dx;
+        var rectRight = newX + 0.75;
+        var rectTop = creature.y + 0.25;
+        var rectBottom = creature.y + 0.75;
+        if (tileAt(rectRight, rectTop).type.wall || tileAt(rectRight, rectBottom).type.wall) {
+            creature.x = Math.floor(rectRight) - 0.76;
+        } else {
+            creature.x = newX;
+        }
+    }
+    
+    if (dx < 0) {
+        var newX = creature.x + dx;
+        var rectLeft = newX + 0.25;
+        var rectTop = creature.y + 0.25;
+        var rectBottom = creature.y + 0.75;
+        if (tileAt(rectLeft, rectTop).type.wall || tileAt(rectLeft, rectBottom).type.wall) {
+            creature.x = Math.floor(rectLeft) + 0.76;
+        } else {
+            creature.x = newX;
+        }
+    }
+    
+    if (dy > 0) {
+        var newY = creature.y + dy;
+        var rectBottom = newY + 0.75;
+        var rectLeft = creature.x + 0.25;
+        var rectRight = creature.x + 0.75;
+        if (tileAt(rectLeft, rectBottom).type.wall || tileAt(rectRight, rectBottom).type.wall) {
+            creature.y = Math.floor(rectBottom) - 0.76;
+        } else {
+            creature.y = newY;
+        }
+    }
+    
+    if (dy < 0) {
+        var newY = creature.y + dy;
+        var rectTop = newY + 0.25;
+        var rectLeft = creature.x + 0.25;
+        var rectRight = creature.x + 0.75;
+        if (tileAt(rectLeft, rectTop).type.wall || tileAt(rectRight, rectTop).type.wall) {
+            creature.y = Math.floor(rectTop) + 0.76;
+        } else {
+            creature.y = newY;
+        }
+    }
+}
 
 function update(ms) {
     msBuffer.push(ms);
@@ -79,10 +135,10 @@ function update(ms) {
     }
     fps = Math.round(1000 / (msBuffer.reduce(function(a, b) { return a + b; }, 0.0) / msBuffer.length));
     
-    if (keyDown("w")) { currentLevel.player.y -= currentLevel.player.type.speed; }
-    if (keyDown("a")) { currentLevel.player.x -= currentLevel.player.type.speed; }
-    if (keyDown("s")) { currentLevel.player.y += currentLevel.player.type.speed; }
-    if (keyDown("d")) { currentLevel.player.x += currentLevel.player.type.speed; }
+    if (keyDown("W")) { moveCreature(currentLevel.player, 0, -currentLevel.player.type.speed); }
+    if (keyDown("A")) { moveCreature(currentLevel.player, -currentLevel.player.type.speed, 0); }
+    if (keyDown("S")) { moveCreature(currentLevel.player, 0, currentLevel.player.type.speed); }
+    if (keyDown("D")) { moveCreature(currentLevel.player, currentLevel.player.type.speed, 0); }
 }
 
 function drawCreature(creature) {
@@ -100,18 +156,18 @@ function draw() {
     drawCreature(currentLevel.player);
     c.fillStyle = "white";
     c.fillText(fps, 10, 10);
-    var y = 30;
-    for (var k in keys) { c.fillText(k + ": " + keys[k], 10, y += 20);}
 }
 
 function canvasKeyDown(e) {
-    keys["fish"];
-    keys[e.which] = true;
+    keys[String.fromCharCode(e.which)] = true;
 }
 
 function canvasKeyUp(e) {
-    keys[e.which] = false;
+    keys[String.fromCharCode(e.which)] = false;
 }
+
+$('body').keydown(canvasKeyDown);
+$('body').keyup(canvasKeyUp);
 
 function keyDown(key) {
     return !!keys[key];
@@ -119,7 +175,7 @@ function keyDown(key) {
 
 function blit(img, sx, sy, sw, sh, dx, dy, dw, dh) {
     if (dx > buffer.width || dy > buffer.height || dx + dw < 0 || dy + dh < 0) { return; }
-    c.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    c.drawImage(img, sx, sy, sw, sh, Math.floor(dx), Math.floor(dy), dw, dh);
 }
 
 function gblit(sx, sy, dx, dy) {
