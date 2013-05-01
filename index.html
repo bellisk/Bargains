@@ -10,6 +10,10 @@
 <script type="text/javascript">
 const FRAMERATE = 60;
 const SPF = 1.0 / FRAMERATE;
+const NORTH = 0;
+const SOUTH = 1;
+const WEST  = 2;
+const EAST  = 3;
 
 var tileTypes = {};
 tileTypes.stoneFloor = {
@@ -30,7 +34,7 @@ var creatureTypes = {};
 
 creatureTypes.player = {
     name: "player",
-    sx: 2,
+    sx: 3,
     sy: 0,
     speed: 4 * SPF
 };
@@ -39,6 +43,7 @@ var currentLevel = {
     map: [],
     player: {
         type: creatureTypes.player,
+        direction: SOUTH,
         x: 3,
         y: 3
     }
@@ -59,7 +64,7 @@ for (var y = 0; y < 100; y++) {
 
 const GRID_SIZE = 16;
 const GRID_HEIGHT = 8;
-const SCALE = 2;
+const SCALE = 4;
 var canvas = document.getElementById("gameCanvas");
 var buffer = document.createElement("canvas");
 buffer.width = canvas.width / SCALE;
@@ -82,49 +87,53 @@ function moveCreature(creature, dx, dy) {
     if (dx > 0) {
         var newX = creature.x + dx;
         var rectRight = newX + 0.75;
-        var rectTop = creature.y + 0.25;
-        var rectBottom = creature.y + 0.75;
+        var rectTop = creature.y + 0.75;
+        var rectBottom = creature.y + 1.25;
         if (tileAt(rectRight, rectTop).type.wall || tileAt(rectRight, rectBottom).type.wall) {
             creature.x = Math.floor(rectRight) - 0.76;
         } else {
             creature.x = newX;
         }
+        creature.direction = WEST;
     }
     
     if (dx < 0) {
         var newX = creature.x + dx;
         var rectLeft = newX + 0.25;
-        var rectTop = creature.y + 0.25;
-        var rectBottom = creature.y + 0.75;
+        var rectTop = creature.y + 0.75;
+        var rectBottom = creature.y + 1.25;
         if (tileAt(rectLeft, rectTop).type.wall || tileAt(rectLeft, rectBottom).type.wall) {
             creature.x = Math.floor(rectLeft) + 0.76;
         } else {
             creature.x = newX;
         }
+        creature.direction = EAST;
     }
     
     if (dy > 0) {
         var newY = creature.y + dy;
-        var rectBottom = newY + 0.75;
+        var rectBottom = newY + 1.25;
         var rectLeft = creature.x + 0.25;
         var rectRight = creature.x + 0.75;
         if (tileAt(rectLeft, rectBottom).type.wall || tileAt(rectRight, rectBottom).type.wall) {
-            creature.y = Math.floor(rectBottom) - 0.76;
+            creature.y = Math.floor(rectBottom) - 1.26;
         } else {
             creature.y = newY;
         }
+        creature.direction = SOUTH;
     }
     
     if (dy < 0) {
         var newY = creature.y + dy;
-        var rectTop = newY + 0.25;
+        var rectTop = newY + 0.75;
         var rectLeft = creature.x + 0.25;
         var rectRight = creature.x + 0.75;
         if (tileAt(rectLeft, rectTop).type.wall || tileAt(rectRight, rectTop).type.wall) {
-            creature.y = Math.floor(rectTop) + 0.76;
+            creature.y = Math.floor(rectTop) + 0.26;
         } else {
             creature.y = newY;
         }
+        creature.direction = NORTH;
     }
 }
 
@@ -135,14 +144,19 @@ function update(ms) {
     }
     fps = Math.round(1000 / (msBuffer.reduce(function(a, b) { return a + b; }, 0.0) / msBuffer.length));
     
-    if (keyDown("W")) { moveCreature(currentLevel.player, 0, -currentLevel.player.type.speed); }
-    if (keyDown("A")) { moveCreature(currentLevel.player, -currentLevel.player.type.speed, 0); }
-    if (keyDown("S")) { moveCreature(currentLevel.player, 0, currentLevel.player.type.speed); }
-    if (keyDown("D")) { moveCreature(currentLevel.player, currentLevel.player.type.speed, 0); }
+    var time = ms * FRAMERATE / 1000;
+    
+    if (keyDown("W")) { moveCreature(currentLevel.player, 0, -currentLevel.player.type.speed * time); }
+    if (keyDown("A")) { moveCreature(currentLevel.player, -currentLevel.player.type.speed * time, 0); }
+    if (keyDown("S")) { moveCreature(currentLevel.player, 0, currentLevel.player.type.speed * time); }
+    if (keyDown("D")) { moveCreature(currentLevel.player, currentLevel.player.type.speed * time, 0); }
+    
+    scrollX = -currentLevel.player.x * GRID_SIZE + buffer.width / 2 - GRID_SIZE / 2;
+    scrollY = -currentLevel.player.y * GRID_HEIGHT + buffer.height / 2 - GRID_HEIGHT / 2;
 }
 
 function drawCreature(creature) {
-    gblit(creature.type.sx, creature.type.sy, creature.x * GRID_SIZE + scrollX, creature.y * GRID_HEIGHT + scrollY);
+    gblit(creature.type.sx + creature.direction, creature.type.sy, creature.x * GRID_SIZE + scrollX, creature.y * GRID_HEIGHT + scrollY);
 }
 
 function draw() {
@@ -150,10 +164,22 @@ function draw() {
     c.fillRect(0, 0, 800, 600);
     for (var y = 0; y < currentLevel.map.length; y++) {
         for (var x = 0; x < currentLevel.map[y].length; x++) {
-            gblit(currentLevel.map[y][x].type.sx, currentLevel.map[y][x].type.sy, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
+            if (!currentLevel.map[y][x].type.wall) {
+                gblit(currentLevel.map[y][x].type.sx, currentLevel.map[y][x].type.sy, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
+            }
         }
     }
+    
     drawCreature(currentLevel.player);
+    
+    for (var y = 0; y < currentLevel.map.length; y++) {
+        for (var x = 0; x < currentLevel.map[y].length; x++) {
+            if (currentLevel.map[y][x].type.wall) {
+                gblit(currentLevel.map[y][x].type.sx, currentLevel.map[y][x].type.sy, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
+            }
+        }
+    }
+    
     c.fillStyle = "white";
     c.fillText(fps, 10, 10);
 }
