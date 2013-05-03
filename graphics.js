@@ -18,6 +18,11 @@ function drawCreature(creature) {
     gblit(s[0], s[1], creature.x * GRID_SIZE + scrollX, creature.y * GRID_HEIGHT + scrollY);
 }
 
+function drawParticle(p) {
+    if (p == null) { return; }
+    gblit(p.sx, p.sy, p.x * GRID_SIZE + scrollX, p.y * GRID_HEIGHT + scrollY);
+}
+
 function draw() {
     c.fillStyle = "black";
     c.fillRect(0, 0, 800, 600);
@@ -29,7 +34,9 @@ function draw() {
         }
     }
     
+    currentLevel.monsters.forEach(function(m) { drawCreature(m); });
     drawCreature(currentLevel.player);
+    currentLevel.particles.forEach(function(p) { drawParticle(p); });
     
     for (var y = 0; y < currentLevel.map.length; y++) {
         for (var x = 0; x < currentLevel.map[y].length; x++) {
@@ -39,8 +46,12 @@ function draw() {
         }
     }
     
+    for (var i = 0; i < currentLevel.player.hp; i++) {
+        gblit(2, 2, buffer.width - (i + 1) * GRID_SIZE, 0);
+    }
+    
     c.fillStyle = "white";
-    c.fillText(fps, 10, 10);
+    c.fillText("WASD to move, IJKL to attack.", 5, buffer.height - 5);
 }
 
 function canvasKeyDown(e) {
