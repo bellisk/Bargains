@@ -91,3 +91,38 @@ creatureTypes.floobler = {
     reload: 300
 };
 
+var shotTypes = {};
+
+shotTypes.fireball = {
+    name: "fireball",
+    life: 1300,
+    speed: 6 * SPF,
+    dmg: 2,
+    frames: [[0, 3], [1, 3]],
+    animCycle: 100
+};
+
+var spellTypes = {};
+
+spellTypes.shootFire = {
+    name: "shootFire",
+    cast: function(c, l) {
+        var bx = -1;
+        var by = -1;
+        var minDistSq = 10000;
+        for (var y = 0; y < l.map.length; y++) {
+            for (var x = 0; x < l.map[y].length; x++) {
+                if (l.map[y][x].type != tileTypes.brazier) { continue; }
+                var bDistSq = (c.x - x) * (c.x - x) + (c.y - y) * (c.y - y);
+                if (bDistSq < minDistSq) {
+                    minDistSq = bDistSq;
+                    bx = x;
+                    by = y;
+                }
+            }
+        }
+        if (bx != -1 && minDistSq <= 4 * 4) {
+            addShot(shotTypes.fireball, c.x + 0.5, c.y + 0.5, Math.atan2(c.y - by, c.x - bx), c);
+        }
+    }
+};

@@ -16,11 +16,14 @@ function setup() {
             y: 3,
             reload: 0,
             attackTime: 0,
-            hp: 10
+            hp: 10,
+            spell: spellTypes.shootFire
         },
         monsters: [],
         particles: [null],
-        firstEmptyParticle: 0
+        firstEmptyParticle: 0,
+        shots: [null],
+        firstEmptyShot: 0
     };
 
     scrollX = 0;
@@ -80,8 +83,8 @@ function moveCreature(creature, dx, dy) {
     if (dx > 0) {
         var newX = creature.x + dx;
         var rectRight = newX + 0.75;
-        var rectTop = creature.y + 0.75;
-        var rectBottom = creature.y + 1.25;
+        var rectTop = creature.y + 0.25;
+        var rectBottom = creature.y + 0.75;
         if (wallAt(rectRight, rectTop) || wallAt(rectRight, rectBottom)) {
             creature.x = Math.floor(rectRight) - 0.76;
         } else {
@@ -93,8 +96,8 @@ function moveCreature(creature, dx, dy) {
     if (dx < 0) {
         var newX = creature.x + dx;
         var rectLeft = newX + 0.25;
-        var rectTop = creature.y + 0.75;
-        var rectBottom = creature.y + 1.25;
+        var rectTop = creature.y + 0.25;
+        var rectBottom = creature.y + 0.75;
         if (wallAt(rectLeft, rectTop) || wallAt(rectLeft, rectBottom)) {
             creature.x = Math.floor(rectLeft) + 0.76;
         } else {
@@ -105,11 +108,11 @@ function moveCreature(creature, dx, dy) {
     
     if (dy > 0) {
         var newY = creature.y + dy;
-        var rectBottom = newY + 1.25;
+        var rectBottom = newY + 0.75;
         var rectLeft = creature.x + 0.25;
         var rectRight = creature.x + 0.75;
         if (wallAt(rectLeft, rectBottom) || wallAt(rectRight, rectBottom)) {
-            creature.y = Math.floor(rectBottom) - 1.26;
+            creature.y = Math.floor(rectBottom) - 0.76;
         } else {
             creature.y = newY;
         }
@@ -118,15 +121,37 @@ function moveCreature(creature, dx, dy) {
     
     if (dy < 0) {
         var newY = creature.y + dy;
-        var rectTop = newY + 0.75;
+        var rectTop = newY + 0.25;
         var rectLeft = creature.x + 0.25;
         var rectRight = creature.x + 0.75;
         if (wallAt(rectLeft, rectTop) || wallAt(rectRight, rectTop)) {
-            creature.y = Math.floor(rectTop) + 0.26;
+            creature.y = Math.floor(rectTop) + 0.76;
         } else {
             creature.y = newY;
         }
         creature.direction = NORTH;
+    }
+}
+
+function doDamage(c, ax, ay, dmg) {
+    if (c == currentLevel.player) {
+        var hitMonsters = currentLevel.monsters.filter(function(m) {
+            return m.x <= ax && m.x + 1 >= ax && m.y <= ay && m.y + 1 >= ay;
+        });
+        if (hitMonsters.length > 0) {
+            addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
+        }
+        hitMonsters.forEach(function(m) {
+           m.hp -= dmg; 
+        });
+        return hitMonsters.length > 0;
+    } else {
+        if (currentLevel.player.x <= ax && currentLevel.player.x + 1 >= ax && currentLevel.player.y <= ay && currentLevel.player.y + 1 >= ay) {
+            addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
+            currentLevel.player.hp -= dmg;
+            return true;
+        }
+        return false;
     }
 }
 
@@ -136,22 +161,14 @@ function attack(c, direction) {
     c.attackTime = c.type.attackTime;
     var ax = c.x + 0.5 + dirDx(direction) * 0.5;
     var ay = c.y + 0.5 + dirDy(direction) * 0.5;
-    if (c == currentLevel.player) {
-        var hitMonsters = currentLevel.monsters.filter(function(m) {
-            return m.x <= ax && m.x + 1 >= ax && m.y <= ay && m.y + 1 >= ay;
-        });
-        if (hitMonsters.length > 0) {
-            addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
-        }
-        hitMonsters.forEach(function(m) {
-           m.hp--; 
-        });
-    } else {
-        if (currentLevel.player.x <= ax && currentLevel.player.x + 1 >= ax && currentLevel.player.y <= ay && currentLevel.player.y + 1 >= ay) {
-            addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
-            currentLevel.player.hp--;
-        }
-    }
+    doDamage(c, ax, ay, 1);
+}
+
+function cast(c) {
+    if (c.attackTime > 0 || c.reload > 0) { return; }
+    c.attackDirection = c.direction;
+    c.attackTime = c.type.attackTime;
+    c.spell.cast(c, currentLevel);
 }
 
 function tickCreature(c, ms) {
@@ -186,6 +203,18 @@ function addParticle(sx, sy, x, y, life) {
     }
 }
 
+function addShot(type, x, y, direction, shooter) {
+    var s = { type: type, x: x, y: y, direction: direction, shooter: shooter, life: type.life };
+    if (currentLevel.firstEmptyShot >= currentLevel.shots.length) {
+        currentLevel.shots.push(s);
+    } else {
+        currentLevel.shots[currentLevel.firstEmptyShot] = s;
+        while (currentLevel.firstEmptyShot < currentLevel.shots.length && currentLevel.shots[currentLevel.firstEmptyShot] != null) {
+            currentLevel.firstEmptyShot++;
+        }
+    }
+}
+
 function update(ms) {
     totalMs += ms;
     msBuffer.push(ms);
@@ -205,6 +234,8 @@ function update(ms) {
     if (keyDown("J")) { attack(currentLevel.player, WEST); }
     if (keyDown("K")) { attack(currentLevel.player, SOUTH); }
     if (keyDown("L")) { attack(currentLevel.player, EAST); }
+
+    if (keyDown(" ") || keyDown("E")) { cast(currentLevel.player); }
     
     scrollX = -currentLevel.player.x * GRID_SIZE + buffer.width / 2 - GRID_SIZE / 2;
     scrollY = -currentLevel.player.y * GRID_HEIGHT + buffer.height / 2 - GRID_HEIGHT / 2;
@@ -215,6 +246,24 @@ function update(ms) {
         if (currentLevel.particles[i].life <= 0) {
             currentLevel.firstEmptyParticle = Math.min(currentLevel.firstEmptyParticle, i);
             currentLevel.particles[i] = null;
+        }
+    }
+
+    for (var i = 0; i < currentLevel.shots.length; i++) {
+        var s = currentLevel.shots[i];
+        if (s == null) { continue; }
+        s.life -= ms;
+        s.x += Math.cos(s.direction) * s.type.speed;
+        s.y += Math.sin(s.direction) * s.type.speed;
+        if (doDamage(s.shooter, s.x, s.y, s.type.dmg)) {
+            s.life = 0;
+        }
+        if (wallAt(s.x, s.y)) {
+            s.life = 0;
+        }
+        if (s.life <= 0) {
+            currentLevel.firstEmptyShot = Math.min(currentLevel.firstEmptyShot, i);
+            currentLevel.shots[i] = null;
         }
     }
     
