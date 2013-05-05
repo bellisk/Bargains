@@ -50,7 +50,9 @@ creatureTypes.player = {
     },
     tick: function(c, l, ms) {},
     attackTime: 150,
-    reload: 250
+    reload: 250,
+    xSize: 0.4375,
+    ySize: 0.5
 };
 
 creatureTypes.floobler = {
@@ -88,7 +90,9 @@ creatureTypes.floobler = {
         }
     },
     attackTime: 300,
-    reload: 300
+    reload: 300,
+    xSize: 0.875,
+    ySize: 0.875
 };
 
 var shotTypes = {};
