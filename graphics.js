@@ -20,43 +20,21 @@ function drawCreature(creature) {
 
 function drawParticle(p) {
     if (p == null) { return; }
-    gblit(p.sx, p.sy, p.x * GRID_SIZE + scrollX, p.y * GRID_HEIGHT + scrollY);
+    var animMs = totalMs % (p.type.animCycle * p.type.frames.length);
+    var animFrame = Math.floor(animMs / p.type.animCycle);
+    gblit(p.type.frames[animFrame][0], p.type.frames[animFrame][1], p.x * GRID_SIZE + scrollX, p.y * GRID_HEIGHT + scrollY);
 }
 
 function drawShot(s) {
     if (s == null) { return; }
     var animMs = totalMs % (s.type.animCycle * s.type.frames.length);
     var animFrame = Math.floor(animMs / s.type.animCycle);
-    gblit(s.type.frames[animFrame][0], s.type.frames[animFrame][1], (s.x - 0.5) * GRID_SIZE + scrollX, (s.y - 0.5) * GRID_HEIGHT + scrollY);
+    gblit(s.type.frames[animFrame][0], s.type.frames[animFrame][1], s.x * GRID_SIZE + scrollX, s.y * GRID_HEIGHT + scrollY);
 }
 
 function draw() {
     c.fillStyle = "black";
     c.fillRect(0, 0, 800, 600);
-    /*for (var y = 0; y < currentLevel.map.length; y++) {
-        for (var x = 0; x < currentLevel.map[y].length; x++) {
-            if (!currentLevel.map[y][x].type.wall) {
-                var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
-                var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
-                gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
-            }
-        }
-    }
-    
-    currentLevel.monsters.forEach(function(m) { drawCreature(m); });
-    drawCreature(currentLevel.player);
-    currentLevel.shots.forEach(function(s) { drawShot(s); });
-    currentLevel.particles.forEach(function(p) { drawParticle(p); });
-    
-    for (var y = 0; y < currentLevel.map.length; y++) {
-        for (var x = 0; x < currentLevel.map[y].length; x++) {
-            if (currentLevel.map[y][x].type.wall) {
-                var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
-                var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
-                gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
-            }
-        }
-    }*/
 
     for (var y = 0; y < currentLevel.map.length; y++) {
         for (var x = 0; x < currentLevel.map[y].length; x++) {
@@ -69,10 +47,10 @@ function draw() {
         });
         if (Math.floor(currentLevel.player.y + currentLevel.player.type.ySize) == y) { drawCreature(currentLevel.player); }
         currentLevel.shots.forEach(function(s) {
-            if (s != null && Math.floor(s.y - 0.5 + 1) == y) { drawShot(s); }
+            if (s != null && Math.floor(s.y + s.type.ySize) == y) { drawShot(s); }
         });
         currentLevel.particles.forEach(function(p) { 
-            if (p != null && Math.floor(p.y + 1) == y) { drawParticle(p); }
+            if (p != null && Math.floor(p.y + p.type.ySize) == y) { drawParticle(p); }
         });
     }
     
@@ -81,7 +59,8 @@ function draw() {
     }
     
     c.fillStyle = "white";
-    c.fillText("WASD to move, IJKL to attack.", 5, buffer.height - 5);
+    c.fillText("WASD to move, IJKL to attack", 5, buffer.height - 15);
+    c.fillText("Space to make braziers explode", 5, buffer.height - 5);
 }
 
 function canvasKeyDown(e) {

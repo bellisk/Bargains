@@ -17,7 +17,7 @@ function setup() {
             reload: 0,
             attackTime: 0,
             hp: 10,
-            spell: spellTypes.shootFire
+            spell: spellTypes.explodeBrazier
         },
         monsters: [],
         particles: [null],
@@ -133,21 +133,21 @@ function moveCreature(creature, dx, dy) {
     }
 }
 
-function doDamage(c, ax, ay, dmg) {
+function doDamage(c, ax, ay, axSize, aySize, dmg) {
     if (c == currentLevel.player) {
         var hitMonsters = currentLevel.monsters.filter(function(m) {
-            return m.x <= ax && m.x + m.type.xSize >= ax && m.y <= ay && m.y + m.type.ySize >= ay;
+            return m.x <= ax + axSize && m.x + m.type.xSize >= ax && m.y <= ay + aySize && m.y + m.type.ySize >= ay;
         });
         if (hitMonsters.length > 0) {
-            addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
+            addParticle(particleTypes.blood, ax + axSize * 0.5 - particleTypes.blood.xSize * 0.5, ay + aySize * 0.5 - particleTypes.blood.ySize * 0.5);
         }
         hitMonsters.forEach(function(m) {
            m.hp -= dmg; 
         });
         return hitMonsters.length > 0;
     } else {
-        if (currentLevel.player.x <= ax && currentLevel.player.x + currentLevel.player.type.xSize >= ax && currentLevel.player.y <= ay && currentLevel.player.y + currentLevel.player.type.ySize >= ay) {
-            addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
+        if (currentLevel.player.x <= ax + axSize && currentLevel.player.x + currentLevel.player.type.xSize >= ax && currentLevel.player.y <= ay + aySize && currentLevel.player.y + currentLevel.player.type.ySize >= ay) {
+            addParticle(particleTypes.blood, ax + axSize * 0.5 - particleTypes.blood.xSize * 0.5, ay + aySize * 0.5 - particleTypes.blood.ySize * 0.5);
             currentLevel.player.hp -= dmg;
             return true;
         }
@@ -159,9 +159,9 @@ function attack(c, direction) {
     if (c.attackTime > 0 || c.reload > 0) { return; }
     c.attackDirection = direction;
     c.attackTime = c.type.attackTime;
-    var ax = c.x + c.type.xSize * 0.5 + dirDx(direction) * 0.5;
-    var ay = c.y + c.type.ySize * 0.5 + dirDy(direction) * 0.5;
-    doDamage(c, ax, ay, 1);
+    var ax = c.x + c.type.xSize * 0.5 + dirDx(direction) * 0.5 - 0.25;
+    var ay = c.y + c.type.ySize * 0.5 + dirDy(direction) * 0.5 - 0.25;
+    doDamage(c, ax, ay, 0.5, 0.5, 1);
 }
 
 function cast(c) {
@@ -173,7 +173,7 @@ function cast(c) {
 
 function tickCreature(c, ms) {
     if (c.hp <= 0) {
-        addParticle(1, 2, c.x + c.type.xSize * 0.5 - 0.5, c.y + c.type.ySize * 0.5 - 0.5, 300);
+        addParticle(particleTypes.death, c.x + c.type.xSize * 0.5 - particleTypes.death.xSize * 0.5, c.y + c.type.ySize * 0.5 - particleTypes.death.ySize * 0.5);
         return false;
     }
     
@@ -191,8 +191,8 @@ function tickCreature(c, ms) {
     return true;
 }
 
-function addParticle(sx, sy, x, y, life) {
-    var p = { sx: sx, sy: sy, x: x, y: y, life: life };
+function addParticle(type, x, y) {
+    var p = { type: type, x: x, y: y, life: type.life };
     if (currentLevel.firstEmptyParticle >= currentLevel.particles.length) {
         currentLevel.particles.push(p);
     } else {
@@ -255,10 +255,10 @@ function update(ms) {
         s.life -= ms;
         s.x += Math.cos(s.direction) * s.type.speed;
         s.y += Math.sin(s.direction) * s.type.speed;
-        if (doDamage(s.shooter, s.x, s.y, s.type.dmg)) {
+        if (doDamage(s.shooter, s.x, s.y, s.type.xSize, s.type.ySize, s.type.dmg)) {
             s.life = 0;
         }
-        if (wallAt(s.x, s.y)) {
+        if (wallAt(s.x, s.y) || wallAt(s.x + s.type.xSize, s.y) || wallAt(s.x, s.y + s.type.ySize) || wallAt(s.x + s.type.xSize, s.y + s.type.ySize)) {
             s.life = 0;
         }
         if (s.life <= 0) {

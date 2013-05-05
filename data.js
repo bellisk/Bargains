@@ -39,6 +39,13 @@ tileTypes.brazier = {
     wall: true
 };
 
+tileTypes.emptyBrazier = {
+    name: "emptyBrazier",
+    frames: [[3, 2]],
+    animCycle: 1000,
+    wall: true
+};
+
 var creatureTypes = {};
 
 creatureTypes.player = {
@@ -95,6 +102,27 @@ creatureTypes.floobler = {
     ySize: 0.875
 };
 
+var particleTypes = {};
+
+particleTypes.blood = {
+  name: "blood",
+  life: 300,
+  frames: [[0, 2]],
+  animCycle: 1000,
+  xSize: .375,
+  ySize: .375
+};
+
+particleTypes.death = {
+  name: "death",
+  life: 300,
+  frames: [[1, 2]],
+  animCycle: 1000,
+  xSize: 0.625,
+  ySize: 0.625
+};
+
+
 var shotTypes = {};
 
 shotTypes.fireball = {
@@ -103,7 +131,9 @@ shotTypes.fireball = {
     speed: 6 * SPF,
     dmg: 2,
     frames: [[0, 3], [1, 3]],
-    animCycle: 100
+    animCycle: 100,
+    xSize: .4375,
+    ySize: .375
 };
 
 var spellTypes = {};
@@ -126,7 +156,35 @@ spellTypes.shootFire = {
             }
         }
         if (bx != -1 && minDistSq <= 4 * 4) {
-            addShot(shotTypes.fireball, c.x + 0.5 * c.type.xSize, c.y + 0.5 * c.type.ySize, Math.atan2(c.y + 0.5 * c.type.ySize - (by + 0.5), c.x + 0.5 * c.type.xSize - (bx + 0.5)), c);
+            addShot(shotTypes.fireball, c.x + 0.5 * c.type.xSize - 0.5 * shotTypes.fireball.xSize, c.y + 0.5 * c.type.ySize - 0.5 * shotTypes.fireball.ySize, Math.atan2(c.y + 0.5 * c.type.ySize - (by + 0.5), c.x + 0.5 * c.type.xSize - (bx + 0.5)), c);
+        }
+    }
+};
+
+spellTypes.explodeBrazier = {
+    name: "explodeBrazier",
+    cast: function(c, l) {
+        var bx = -1;
+        var by = -1;
+        var minDistSq = 10000;
+        for (var y = 0; y < l.map.length; y++) {
+            for (var x = 0; x < l.map[y].length; x++) {
+                if (l.map[y][x].type != tileTypes.brazier) { continue; }
+                var bDistSq = (x + 0.5 - (c.x + 0.5 * c.type.xSize)) * (x + 0.5 - (c.x + 0.5 * c.type.xSize)) + (y + 0.5 - (c.y + 0.5 * c.type.ySize)) * (y + 0.5 - (c.y + 0.5 * c.type.ySize));
+                if (bDistSq < minDistSq) {
+                    minDistSq = bDistSq;
+                    bx = x;
+                    by = y;
+                }
+            }
+        }
+        if (bx != -1 && minDistSq <= 4 * 4) {
+            for (var i = 0; i < 16; i++) {
+                var dir = Math.PI * i * 2 / 16;
+                addShot(shotTypes.fireball, bx + 0.5 - shotTypes.fireball.xSize * 0.5 + Math.cos(dir), by + 0.5 - shotTypes.fireball.ySize * 0.5 + Math.sin(dir), dir, c);
+                
+            }
+            l.map[by][bx].type = tileTypes.emptyBrazier;
         }
     }
 };
