@@ -3,6 +3,8 @@ var currentLevel = null;
 var scrollX = 0;
 var scrollY = 0;
 
+var totalMs = 0;
+
 function setup() {
     currentLevel = {
         map: [],
@@ -28,7 +30,7 @@ function setup() {
         var row = [];
         for (var x = 0; x < 100; x++) {
             row.push({
-                type: ((y % 8 == 0 || x % 8 == 0) && !((y + 2) % 8 == 0 || (x + 2) % 8 == 0)) || (y == 0 || y == 99 || x == 0 || x == 99) ? tileTypes.stoneWall : tileTypes.stoneFloor
+                type: ((y % 8 == 0 || x % 8 == 0) && !((y + 2) % 8 == 0 || (x + 2) % 8 == 0)) || (y == 0 || y == 99 || x == 0 || x == 99) ? tileTypes.stoneWall : (y % 17 == 0 && x % 11 == 0) ? tileTypes.brazier : tileTypes.stoneFloor
             });
         }
         currentLevel.map.push(row);
@@ -185,6 +187,7 @@ function addParticle(sx, sy, x, y, life) {
 }
 
 function update(ms) {
+    totalMs += ms;
     msBuffer.push(ms);
     if (msBuffer.length > 10) {
         msBuffer.shift();

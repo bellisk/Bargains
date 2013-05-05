@@ -20,15 +20,22 @@ function dirDy(dir) {
 var tileTypes = {};
 tileTypes.stoneFloor = {
     name: "stoneFloor",
-    sx: 0,
-    sy: 0,
+    frames: [[0, 0]],
+    animCycle: 1000,
     wall: false
 };
 
 tileTypes.stoneWall = {
     name: "stoneWall",
-    sx: 1,
-    sy: 0,
+    frames: [[1, 0]],
+    animCycle: 1000,
+    wall: true
+};
+
+tileTypes.brazier = {
+    name: "brazier",
+    frames: [[4, 2], [5, 2]],
+    animCycle: 300,
     wall: true
 };
 

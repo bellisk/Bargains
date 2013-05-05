@@ -29,7 +29,9 @@ function draw() {
     for (var y = 0; y < currentLevel.map.length; y++) {
         for (var x = 0; x < currentLevel.map[y].length; x++) {
             if (!currentLevel.map[y][x].type.wall) {
-                gblit(currentLevel.map[y][x].type.sx, currentLevel.map[y][x].type.sy, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
+                var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
+                var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
+                gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
             }
         }
     }
@@ -41,7 +43,9 @@ function draw() {
     for (var y = 0; y < currentLevel.map.length; y++) {
         for (var x = 0; x < currentLevel.map[y].length; x++) {
             if (currentLevel.map[y][x].type.wall) {
-                gblit(currentLevel.map[y][x].type.sx, currentLevel.map[y][x].type.sy, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
+                var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
+                var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
+                gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY - GRID_SIZE + GRID_HEIGHT);
             }
         }
     }
