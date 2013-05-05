@@ -117,7 +117,7 @@ spellTypes.shootFire = {
         for (var y = 0; y < l.map.length; y++) {
             for (var x = 0; x < l.map[y].length; x++) {
                 if (l.map[y][x].type != tileTypes.brazier) { continue; }
-                var bDistSq = (c.x - x) * (c.x - x) + (c.y - y) * (c.y - y);
+                var bDistSq = (x + 0.5 - (c.x + 0.5 * c.type.xSize)) * (x + 0.5 - (c.x + 0.5 * c.type.xSize)) + (y + 0.5 - (c.y + 0.5 * c.type.ySize)) * (y + 0.5 - (c.y + 0.5 * c.type.ySize));
                 if (bDistSq < minDistSq) {
                     minDistSq = bDistSq;
                     bx = x;
@@ -126,7 +126,7 @@ spellTypes.shootFire = {
             }
         }
         if (bx != -1 && minDistSq <= 4 * 4) {
-            addShot(shotTypes.fireball, c.x + 0.5, c.y + 0.5, Math.atan2(c.y - by, c.x - bx), c);
+            addShot(shotTypes.fireball, c.x + 0.5 * c.type.xSize, c.y + 0.5 * c.type.ySize, Math.atan2(c.y + 0.5 * c.type.ySize - (by + 0.5), c.x + 0.5 * c.type.xSize - (bx + 0.5)), c);
         }
     }
 };

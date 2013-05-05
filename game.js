@@ -82,11 +82,11 @@ setup();
 function moveCreature(creature, dx, dy) {
     if (dx > 0) {
         var newX = creature.x + dx;
-        var rectRight = newX + 0.75;
-        var rectTop = creature.y + 0.25;
-        var rectBottom = creature.y + 0.75;
+        var rectRight = newX + creature.type.xSize;
+        var rectTop = creature.y;
+        var rectBottom = creature.y + creature.type.ySize;
         if (wallAt(rectRight, rectTop) || wallAt(rectRight, rectBottom)) {
-            creature.x = Math.floor(rectRight) - 0.76;
+            creature.x = Math.floor(rectRight) - creature.type.xSize - 0.01;
         } else {
             creature.x = newX;
         }
@@ -95,11 +95,11 @@ function moveCreature(creature, dx, dy) {
     
     if (dx < 0) {
         var newX = creature.x + dx;
-        var rectLeft = newX + 0.25;
-        var rectTop = creature.y + 0.25;
-        var rectBottom = creature.y + 0.75;
+        var rectLeft = newX;
+        var rectTop = creature.y;
+        var rectBottom = creature.y + creature.type.ySize;
         if (wallAt(rectLeft, rectTop) || wallAt(rectLeft, rectBottom)) {
-            creature.x = Math.floor(rectLeft) + 0.76;
+            creature.x = Math.floor(rectLeft) + 1.01;
         } else {
             creature.x = newX;
         }
@@ -108,11 +108,11 @@ function moveCreature(creature, dx, dy) {
     
     if (dy > 0) {
         var newY = creature.y + dy;
-        var rectBottom = newY + 0.75;
-        var rectLeft = creature.x + 0.25;
-        var rectRight = creature.x + 0.75;
+        var rectBottom = newY + creature.type.ySize;
+        var rectLeft = creature.x;
+        var rectRight = creature.x + creature.type.xSize;
         if (wallAt(rectLeft, rectBottom) || wallAt(rectRight, rectBottom)) {
-            creature.y = Math.floor(rectBottom) - 0.76;
+            creature.y = Math.floor(rectBottom) - creature.type.ySize - 0.01;
         } else {
             creature.y = newY;
         }
@@ -121,11 +121,11 @@ function moveCreature(creature, dx, dy) {
     
     if (dy < 0) {
         var newY = creature.y + dy;
-        var rectTop = newY + 0.25;
-        var rectLeft = creature.x + 0.25;
-        var rectRight = creature.x + 0.75;
+        var rectTop = newY;
+        var rectLeft = creature.x;
+        var rectRight = creature.x + creature.type.xSize;
         if (wallAt(rectLeft, rectTop) || wallAt(rectRight, rectTop)) {
-            creature.y = Math.floor(rectTop) + 0.76;
+            creature.y = Math.floor(rectTop) + 1.01;
         } else {
             creature.y = newY;
         }
@@ -136,7 +136,7 @@ function moveCreature(creature, dx, dy) {
 function doDamage(c, ax, ay, dmg) {
     if (c == currentLevel.player) {
         var hitMonsters = currentLevel.monsters.filter(function(m) {
-            return m.x <= ax && m.x + 1 >= ax && m.y <= ay && m.y + 1 >= ay;
+            return m.x <= ax && m.x + m.type.xSize >= ax && m.y <= ay && m.y + m.type.ySize >= ay;
         });
         if (hitMonsters.length > 0) {
             addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
@@ -146,7 +146,7 @@ function doDamage(c, ax, ay, dmg) {
         });
         return hitMonsters.length > 0;
     } else {
-        if (currentLevel.player.x <= ax && currentLevel.player.x + 1 >= ax && currentLevel.player.y <= ay && currentLevel.player.y + 1 >= ay) {
+        if (currentLevel.player.x <= ax && currentLevel.player.x + currentLevel.player.type.xSize >= ax && currentLevel.player.y <= ay && currentLevel.player.y + currentLevel.player.type.ySize >= ay) {
             addParticle(0, 2, ax - 0.5, ay - 0.5, 300);
             currentLevel.player.hp -= dmg;
             return true;
@@ -159,8 +159,8 @@ function attack(c, direction) {
     if (c.attackTime > 0 || c.reload > 0) { return; }
     c.attackDirection = direction;
     c.attackTime = c.type.attackTime;
-    var ax = c.x + 0.5 + dirDx(direction) * 0.5;
-    var ay = c.y + 0.5 + dirDy(direction) * 0.5;
+    var ax = c.x + c.type.xSize * 0.5 + dirDx(direction) * 0.5;
+    var ay = c.y + c.type.ySize * 0.5 + dirDy(direction) * 0.5;
     doDamage(c, ax, ay, 1);
 }
 
@@ -173,7 +173,7 @@ function cast(c) {
 
 function tickCreature(c, ms) {
     if (c.hp <= 0) {
-        addParticle(1, 2, c.x, c.y, 300);
+        addParticle(1, 2, c.x + c.type.xSize * 0.5 - 0.5, c.y + c.type.ySize * 0.5 - 0.5, 300);
         return false;
     }
     

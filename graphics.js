@@ -65,14 +65,14 @@ function draw() {
             gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
         }
         currentLevel.monsters.forEach(function(m) {
-            if (Math.floor(m.y + 0.75) == y) { drawCreature(m); }
+            if (Math.floor(m.y + m.type.ySize) == y) { drawCreature(m); }
         });
-        if (Math.floor(currentLevel.player.y + 0.75) == y) { drawCreature(currentLevel.player); }
+        if (Math.floor(currentLevel.player.y + currentLevel.player.type.ySize) == y) { drawCreature(currentLevel.player); }
         currentLevel.shots.forEach(function(s) {
-            if (s != null && Math.floor(s.y - 0.5 + 0.75) == y) { drawShot(s); }
+            if (s != null && Math.floor(s.y - 0.5 + 1) == y) { drawShot(s); }
         });
         currentLevel.particles.forEach(function(p) { 
-            if (p != null && Math.floor(p.y + 0.75) == y) { drawParticle(p); }
+            if (p != null && Math.floor(p.y + 1) == y) { drawParticle(p); }
         });
     }
     
