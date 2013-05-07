@@ -159,9 +159,9 @@ function attack(c, direction) {
     if (c.attackTime > 0 || c.reload > 0) { return; }
     c.attackDirection = direction;
     c.attackTime = c.type.attackTime;
-    var ax = c.x + c.type.xSize * 0.5 + dirDx(direction) * 0.5 - 0.25;
-    var ay = c.y + c.type.ySize * 0.5 + dirDy(direction) * 0.5 - 0.25;
-    doDamage(c, ax, ay, 0.5, 0.5, 1);
+    var ax = c.x + c.type.xSize * 0.5 + dirDx(direction) * 0.5 - 0.5;
+    var ay = c.y + c.type.ySize * 0.5 + dirDy(direction) * 0.5 - 0.5;
+    doDamage(c, ax, ay, 1, 1, 1);
 }
 
 function cast(c) {

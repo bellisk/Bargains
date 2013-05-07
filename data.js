@@ -71,19 +71,19 @@ creatureTypes.floobler = {
         return [1, 1];
     },
     tick: function(c, l, ms) {
-        var pDistSq = (c.x - l.player.x) * (c.x - l.player.x) + (c.y - l.player.y) * (c.y - l.player.y);
+        var pDistSq = (c.x + 0.5 * c.type.xSize - (l.player.x + l.player.type.xSize)) * (c.x + 0.5 * c.type.xSize - (l.player.x + l.player.type.xSize)) + (c.y + 0.5 * c.type.ySize - (l.player.y + l.player.type.ySize)) * (c.y + 0.5 * c.type.ySize - (l.player.y + l.player.type.ySize));
         var visionDist = 4;
         var attackDist = 1;
-        var minDist = 0.2;
+        var minDist = 0.35;
         if (pDistSq < visionDist * visionDist) {
-            var dx = l.player.x - c.x;
-            var dy = l.player.y - c.y;
-            dx = Math.abs(dx) < minDist ? 0 : (dx > 0 ? 1 : -1);
-            dy = Math.abs(dy) < minDist ? 0 : (dy > 0 ? 1 : -1);
-            moveCreature(c, this.speed * dx, this.speed * dy);
+            var dx = l.player.x + 0.5 * l.player.type.xSize - (c.x + 0.5 * c.type.xSize);
+            var dy = l.player.y + 0.5 * l.player.type.ySize - (c.y + 0.5 * c.type.ySize);
+            var dxMove = Math.abs(dx) < minDist ? 0 : (dx > 0 ? 1 : -1);
+            var dyMove = Math.abs(dy) < minDist ? 0 : (dy > 0 ? 1 : -1);
+            moveCreature(c, this.speed * dxMove, this.speed * dyMove);
             if (pDistSq < attackDist * attackDist) {
                 var attackDir = 0;
-                if (Math.abs(dx) > Math.abs(dy)) {
+                if (Math.abs(dx) < Math.abs(dy)) {
                     attackDir = dx > 0 ? EAST : WEST;
                 } else {
                     attackDir = dy > 0 ? SOUTH : NORTH;
