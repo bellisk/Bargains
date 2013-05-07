@@ -142,6 +142,7 @@ var spellTypes = {};
 
 spellTypes.shootFire = {
     name: "shootFire",
+    displayName: "Shoot Fire",
     cast: function(c, l) {
         var bx = -1;
         var by = -1;
@@ -165,6 +166,7 @@ spellTypes.shootFire = {
 
 spellTypes.explodeBrazier = {
     name: "explodeBrazier",
+    displayName: "Explode Brazier",
     cast: function(c, l) {
         var bx = -1;
         var by = -1;

@@ -59,8 +59,11 @@ function draw() {
     }
     
     c.fillStyle = "white";
-    c.fillText("WASD to move, IJKL to attack", 5, buffer.height - 15);
-    c.fillText("Space to make braziers explode", 5, buffer.height - 5);
+    c.fillText("WASD to move, IJKL to attack", 5, buffer.height - 5);
+    for (var i = 0; i < currentLevel.player.spells.length; i++) {
+        c.fillStyle = currentLevel.player.spell == currentLevel.player.spells[i] ? "#ff55ff" : "#aa33aa";
+        c.fillText((i + 1) + " " + currentLevel.player.spells[i].displayName, 5, 24 + i * 12);
+    }
 }
 
 function canvasKeyDown(e) {

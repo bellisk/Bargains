@@ -17,6 +17,7 @@ function setup() {
             reload: 0,
             attackTime: 0,
             hp: 10,
+            spells: [spellTypes.shootFire, spellTypes.explodeBrazier],
             spell: spellTypes.explodeBrazier
         },
         monsters: [],
@@ -235,7 +236,13 @@ function update(ms) {
     if (keyDown("K")) { attack(currentLevel.player, SOUTH); }
     if (keyDown("L")) { attack(currentLevel.player, EAST); }
 
-    if (keyDown(" ") || keyDown("E")) { cast(currentLevel.player); }
+    for (var i = 1; i <= 9; i++) {
+        if (keyDown("" + i) && i <= currentLevel.player.spells.length) {
+            currentLevel.player.spell = currentLevel.player.spells[i - 1];
+        }
+    }
+
+    if (keyDown(" ")) { cast(currentLevel.player); }
     
     scrollX = -currentLevel.player.x * GRID_SIZE + buffer.width / 2 - GRID_SIZE / 2;
     scrollY = -currentLevel.player.y * GRID_HEIGHT + buffer.height / 2 - GRID_HEIGHT / 2;
