@@ -54,8 +54,8 @@ function draw() {
         });
     }
     
-    for (var i = 0; i < currentLevel.player.hp; i++) {
-        gblit(2, 2, buffer.width - (i + 1) * GRID_SIZE, 0);
+    for (var i = 0; i < currentLevel.player.type.hp; i++) {
+        gblit(i < currentLevel.player.hp ? 2 : 6, 2, buffer.width - (i + 1) * GRID_SIZE, 0);
     }
     
     c.fillStyle = "white";

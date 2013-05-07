@@ -59,7 +59,8 @@ creatureTypes.player = {
     attackTime: 150,
     reload: 250,
     xSize: 0.4375,
-    ySize: 0.5
+    ySize: 0.5,
+    hp: 10
 };
 
 creatureTypes.floobler = {
@@ -99,7 +100,8 @@ creatureTypes.floobler = {
     attackTime: 300,
     reload: 300,
     xSize: 0.875,
-    ySize: 0.875
+    ySize: 0.875,
+    hp: 5
 };
 
 var particleTypes = {};
