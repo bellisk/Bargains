@@ -35,7 +35,7 @@ function drawShot(s) {
 function draw() {
     c.fillStyle = "black";
     c.fillRect(0, 0, 800, 600);
-    c.font = "10px Verdana";
+    c.font = "8px Verdana";
     c.textAlign = "left";
 
     for (var y = 0; y < currentLevel.map.length; y++) {
@@ -79,7 +79,7 @@ function draw() {
         c.fillText("DEFEAT", buffer.width / 2, buffer.height / 3);
     }
     if (victory || defeat) {
-        c.font = "10px Verdana";
+        c.font = "8px Verdana";
         c.fillText("Press space to continue", buffer.width / 2, buffer.height / 3 + 30);
     }
     
@@ -102,7 +102,7 @@ function keyDown(key) {
 
 function blit(img, sx, sy, sw, sh, dx, dy, dw, dh) {
     if (dx > buffer.width || dy > buffer.height || dx + dw < 0 || dy + dh < 0) { return; }
-    c.drawImage(img, sx, sy, sw, sh, Math.floor(dx), Math.floor(dy), dw, dh);
+    c.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
 }
 
 function gblit(sx, sy, dx, dy) {
