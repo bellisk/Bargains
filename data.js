@@ -46,6 +46,16 @@ tileTypes.emptyBrazier = {
     wall: true
 };
 
+tileTypes.stairsDown = {
+    name: "stairsDown",
+    frames: [[0, 4]],
+    animCycle: 1000,
+    wall: false,
+    onCreatureIntersect: function(t, c, l) {
+        if (c == l.player) { victory = true; }
+    }
+};
+
 var creatureTypes = {};
 
 creatureTypes.player = {

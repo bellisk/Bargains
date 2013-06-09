@@ -1,5 +1,8 @@
 var currentLevel = null;
 
+var victory = false;
+var defeat = false;
+
 var scrollX = 0;
 var scrollY = 0;
 
@@ -27,6 +30,9 @@ function setup() {
         firstEmptyShot: 0
     };
 
+    victory = false;
+    defeat = false;
+
     scrollX = 0;
     scrollY = 0;
 
@@ -39,6 +45,8 @@ function setup() {
         }
         currentLevel.map.push(row);
     }
+
+    currentLevel.map[10][10] = { type: tileTypes.stairsDown };
     
     for (var i = 0; i < 100; i++) {
         var x = randint(0, 100);
@@ -189,6 +197,30 @@ function tickCreature(c, ms) {
     }
     
     c.type.tick(c, currentLevel, ms);
+    
+    var rectRight = c.x + c.type.xSize;
+    var rectBottom = c.y + c.type.ySize;
+
+    var t = tileAt(c.x, c.y);
+    if (t.type.onCreatureIntersect) {
+        t.type.onCreatureIntersect(t, c, currentLevel);
+    }
+
+    t = tileAt(rectRight, c.y);
+    if (t.type.onCreatureIntersect) {
+        t.type.onCreatureIntersect(t, c, currentLevel);
+    }
+
+    t = tileAt(c.x, rectBottom);
+    if (t.type.onCreatureIntersect) {
+        t.type.onCreatureIntersect(t, c, currentLevel);
+    }
+
+    t = tileAt(rectRight, rectBottom);
+    if (t.type.onCreatureIntersect) {
+        t.type.onCreatureIntersect(t, c, currentLevel);
+    }
+
     return true;
 }
 
@@ -225,6 +257,11 @@ function update(ms) {
     fps = Math.round(1000 / (msBuffer.reduce(function(a, b) { return a + b; }, 0.0) / msBuffer.length));
     
     var time = ms * FRAMERATE / 1000;
+
+    if (victory || defeat) {
+        if (keyDown(" ")) { setup(); }
+        return;
+    }
     
     if (keyDown("W")) { moveCreature(currentLevel.player, 0, -currentLevel.player.type.speed * time); }
     if (keyDown("A")) { moveCreature(currentLevel.player, -currentLevel.player.type.speed * time, 0); }
@@ -276,6 +313,6 @@ function update(ms) {
     
     currentLevel.monsters = currentLevel.monsters.filter(function(m) { return tickCreature(m, ms); });
     
-    if (!tickCreature(currentLevel.player, ms)) { setup(); }
+    if (!tickCreature(currentLevel.player, ms)) { defeat = true; }
 }
 

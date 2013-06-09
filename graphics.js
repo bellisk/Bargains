@@ -35,6 +35,8 @@ function drawShot(s) {
 function draw() {
     c.fillStyle = "black";
     c.fillRect(0, 0, 800, 600);
+    c.font = "10px Verdana";
+    c.textAlign = "left";
 
     for (var y = 0; y < currentLevel.map.length; y++) {
         for (var x = 0; x < currentLevel.map[y].length; x++) {
@@ -64,6 +66,23 @@ function draw() {
         c.fillStyle = currentLevel.player.spell == currentLevel.player.spells[i] ? "#ff55ff" : "#aa33aa";
         c.fillText((i + 1) + " " + currentLevel.player.spells[i].displayName, 5, 24 + i * 12);
     }
+
+    c.font = "20px Verdana";
+    if (victory) {
+        c.fillStyle = "#77ff77";
+        c.textAlign = "center";
+        c.fillText("VICTORY", buffer.width / 2, buffer.height / 3);
+    }
+    if (defeat) {
+        c.fillStyle = "red";
+        c.textAlign = "center";
+        c.fillText("DEFEAT", buffer.width / 2, buffer.height / 3);
+    }
+    if (victory || defeat) {
+        c.font = "10px Verdana";
+        c.fillText("Press space to continue", buffer.width / 2, buffer.height / 3 + 30);
+    }
+    
 }
 
 function canvasKeyDown(e) {
