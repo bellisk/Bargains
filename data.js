@@ -5,6 +5,10 @@ const SOUTH = 1;
 const EAST  = 2;
 const WEST  = 3;
 
+function randint(from, to) {
+    return from + Math.floor(Math.random() * (to - from - 0.0000000001));
+}
+
 function dirDx(dir) {
     if (dir == EAST) { return 1; }
     if (dir == WEST) { return -1; }
@@ -20,6 +24,7 @@ function dirDy(dir) {
 var tileTypes = {};
 tileTypes.stoneFloor = {
     name: "stoneFloor",
+    letter: "-",
     frames: [[0, 0]],
     animCycle: 1000,
     wall: false
@@ -27,6 +32,7 @@ tileTypes.stoneFloor = {
 
 tileTypes.stoneWall = {
     name: "stoneWall",
+    letter: "W",
     frames: [[1, 0]],
     animCycle: 1000,
     wall: true
@@ -34,6 +40,7 @@ tileTypes.stoneWall = {
 
 tileTypes.brazier = {
     name: "brazier",
+    letter: "B",
     frames: [[4, 2], [5, 2]],
     animCycle: 300,
     wall: true
@@ -41,6 +48,7 @@ tileTypes.brazier = {
 
 tileTypes.emptyBrazier = {
     name: "emptyBrazier",
+    letter: "b",
     frames: [[3, 2]],
     animCycle: 1000,
     wall: true
@@ -48,6 +56,7 @@ tileTypes.emptyBrazier = {
 
 tileTypes.stairsDown = {
     name: "stairsDown",
+    letter: "<",
     frames: [[0, 4]],
     animCycle: 1000,
     wall: false,
@@ -55,6 +64,12 @@ tileTypes.stairsDown = {
         if (c == l.player) { victory = true; }
     }
 };
+
+var letterToTileType = {};
+
+for (var key in tileTypes) {
+    letterToTileType[tileTypes[key].letter] = tileTypes[key];
+}
 
 var creatureTypes = {};
 

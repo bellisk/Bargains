@@ -9,25 +9,18 @@ var scrollY = 0;
 var totalMs = 0;
 
 function setup() {
-    currentLevel = {
-        map: [],
-        player: {
-            type: creatureTypes.player,
-            direction: SOUTH,
-            attackDirection: SOUTH,
-            x: 3,
-            y: 3,
-            reload: 0,
-            attackTime: 0,
-            hp: 10,
-            spells: [spellTypes.shootFire, spellTypes.explodeBrazier],
-            spell: spellTypes.explodeBrazier
-        },
-        monsters: [],
-        particles: [null],
-        firstEmptyParticle: 0,
-        shots: [null],
-        firstEmptyShot: 0
+    currentLevel = generateMap();
+    currentLevel.player = {
+        type: creatureTypes.player,
+        direction: SOUTH,
+        attackDirection: SOUTH,
+        x: 3,
+        y: 3,
+        reload: 0,
+        attackTime: 0,
+        hp: 10,
+        spells: [spellTypes.shootFire, spellTypes.explodeBrazier],
+        spell: spellTypes.explodeBrazier
     };
 
     victory = false;
@@ -35,22 +28,10 @@ function setup() {
 
     scrollX = 0;
     scrollY = 0;
-
-    for (var y = 0; y < 100; y++) {
-        var row = [];
-        for (var x = 0; x < 100; x++) {
-            row.push({
-                type: ((y % 8 == 0 || x % 8 == 0) && !((y + 2) % 8 == 0 || (x + 2) % 8 == 0)) || (y == 0 || y == 99 || x == 0 || x == 99) ? tileTypes.stoneWall : (y % 17 == 0 && x % 11 == 0) ? tileTypes.brazier : tileTypes.stoneFloor
-            });
-        }
-        currentLevel.map.push(row);
-    }
-
-    currentLevel.map[10][10] = { type: tileTypes.stairsDown };
     
-    for (var i = 0; i < 100; i++) {
-        var x = randint(0, 100);
-        var y = randint(0, 100);
+    for (var i = 0; i < 0; i++) {
+        var x = randint(0, currentLevel.map[0].length);
+        var y = randint(0, currentLevel.map.length);
         if (!wallAt(x, y)) {
             currentLevel.monsters.push({
                 type: creatureTypes.floobler,
@@ -64,10 +45,6 @@ function setup() {
             });
         }
     }
-}
-
-function randint(from, to) {
-    return from + Math.floor(Math.random() * (to - from - 0.0000000001));
 }
 
 function dieRoll(d) {
