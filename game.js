@@ -32,7 +32,7 @@ function setup() {
     for (var i = 0; i < 0; i++) {
         var x = randint(0, currentLevel.map[0].length);
         var y = randint(0, currentLevel.map.length);
-        if (!wallAt(x, y)) {
+        if (!blocksWalkAt(x, y)) {
             currentLevel.monsters.push({
                 type: creatureTypes.floobler,
                 direction: randint(0, 4),
@@ -58,9 +58,19 @@ function tileAt(x, y) {
     return currentLevel.map[Math.floor(y)][Math.floor(x)];
 }
 
-function wallAt(x, y) {
+function blocksWalkAt(x, y) {
     var t = tileAt(x, y);
-    return !t || t.type.wall;
+    return !t || t.type.blocksWalk;
+}
+
+function blocksSightAt(x, y) {
+    var t = tileAt(x, y);
+    return !t || t.type.blocksSight;
+}
+
+function blocksShotAt(x, y) {
+    var t = tileAt(x, y);
+    return !t || t.type.blocksShot;
 }
 
 setup();
@@ -71,7 +81,7 @@ function moveCreature(creature, dx, dy) {
         var rectRight = newX + creature.type.xSize;
         var rectTop = creature.y;
         var rectBottom = creature.y + creature.type.ySize;
-        if (wallAt(rectRight, rectTop) || wallAt(rectRight, rectBottom)) {
+        if (blocksWalkAt(rectRight, rectTop) || blocksWalkAt(rectRight, rectBottom)) {
             creature.x = Math.floor(rectRight) - creature.type.xSize - 0.01;
         } else {
             creature.x = newX;
@@ -84,7 +94,7 @@ function moveCreature(creature, dx, dy) {
         var rectLeft = newX;
         var rectTop = creature.y;
         var rectBottom = creature.y + creature.type.ySize;
-        if (wallAt(rectLeft, rectTop) || wallAt(rectLeft, rectBottom)) {
+        if (blocksWalkAt(rectLeft, rectTop) || blocksWalkAt(rectLeft, rectBottom)) {
             creature.x = Math.floor(rectLeft) + 1.01;
         } else {
             creature.x = newX;
@@ -97,7 +107,7 @@ function moveCreature(creature, dx, dy) {
         var rectBottom = newY + creature.type.ySize;
         var rectLeft = creature.x;
         var rectRight = creature.x + creature.type.xSize;
-        if (wallAt(rectLeft, rectBottom) || wallAt(rectRight, rectBottom)) {
+        if (blocksWalkAt(rectLeft, rectBottom) || blocksWalkAt(rectRight, rectBottom)) {
             creature.y = Math.floor(rectBottom) - creature.type.ySize - 0.01;
         } else {
             creature.y = newY;
@@ -110,7 +120,7 @@ function moveCreature(creature, dx, dy) {
         var rectTop = newY;
         var rectLeft = creature.x;
         var rectRight = creature.x + creature.type.xSize;
-        if (wallAt(rectLeft, rectTop) || wallAt(rectRight, rectTop)) {
+        if (blocksWalkAt(rectLeft, rectTop) || blocksWalkAt(rectRight, rectTop)) {
             creature.y = Math.floor(rectTop) + 1.01;
         } else {
             creature.y = newY;
@@ -279,7 +289,7 @@ function update(ms) {
         if (doDamage(s.shooter, s.x, s.y, s.type.xSize, s.type.ySize, s.type.dmg)) {
             s.life = 0;
         }
-        if (wallAt(s.x, s.y) || wallAt(s.x + s.type.xSize, s.y) || wallAt(s.x, s.y + s.type.ySize) || wallAt(s.x + s.type.xSize, s.y + s.type.ySize)) {
+        if (blocksShotAt(s.x, s.y) || blocksShotAt(s.x + s.type.xSize, s.y) || blocksShotAt(s.x, s.y + s.type.ySize) || blocksShotAt(s.x + s.type.xSize, s.y + s.type.ySize)) {
             s.life = 0;
         }
         if (s.life <= 0) {
