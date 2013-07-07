@@ -9,6 +9,10 @@ function randint(from, to) {
     return from + Math.floor(Math.random() * (to - from - 0.0000000001));
 }
 
+function randitem(l) {
+    return l[randint(0, l.length)];
+}
+
 function dirDx(dir) {
     if (dir == EAST) { return 1; }
     if (dir == WEST) { return -1; }
@@ -101,7 +105,7 @@ tileTypes.openTreasureChest = {
 tileTypes.horizBars = {
     name: "horizBars",
     letter: "=",
-    frames: [[5, 2]],
+    frames: [[2, 5]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -111,7 +115,7 @@ tileTypes.horizBars = {
 tileTypes.vertBars = {
     name: "vertBars",
     letter: "|",
-    frames: [[5, 3]],
+    frames: [[3, 5]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -133,7 +137,7 @@ tileTypes.trapdoor = {
 tileTypes.openTrapdoor = {
     name: "openTrapdoor",
     letter: "t",
-    frames: [[5, 4]],
+    frames: [[4, 5]],
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: false,
@@ -143,7 +147,7 @@ tileTypes.openTrapdoor = {
 tileTypes.torch = {
     name: "torch",
     letter: "!",
-    frames: [[5, 6], [5, 7]],
+    frames: [[6, 5], [7, 5]],
     animCycle: 300,
     blocksWalk: true,
     blocksSight: true,
@@ -163,7 +167,7 @@ tileTypes.extinguishedTorch = {
 tileTypes.basin = {
     name: "basin",
     letter: "U",
-    frames: [[5, 8]],
+    frames: [[8, 5]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -183,7 +187,7 @@ tileTypes.emptyBasin = {
 tileTypes.pit = {
     name: "pit",
     letter: "_",
-    frames: [[5, 9]],
+    frames: [[9, 5]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -193,7 +197,7 @@ tileTypes.pit = {
 tileTypes.eyelessOne = {
     name: "eyelessOne",
     letter: "E",
-    frames: [[5, 10]],
+    frames: [[10, 5]],
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: true,
@@ -205,7 +209,7 @@ tileTypes.eyelessOne = {
 tileTypes.usedEyelessOne = {
     name: "usedEyelessOne",
     letter: "e",
-    frames: [[5, 11]],
+    frames: [[11, 5]],
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: true,
