@@ -27,7 +27,9 @@ tileTypes.stoneFloor = {
     letter: "-",
     frames: [[0, 0]],
     animCycle: 1000,
-    wall: false
+    blocksWalk: false,
+    blocksSight: false,
+    blocksShot: false
 };
 
 tileTypes.stoneWall = {
@@ -35,7 +37,9 @@ tileTypes.stoneWall = {
     letter: "W",
     frames: [[1, 0]],
     animCycle: 1000,
-    wall: true
+    blocksWalk: true,
+    blocksSight: true,
+    blocksShot: true
 };
 
 tileTypes.brazier = {
@@ -43,7 +47,9 @@ tileTypes.brazier = {
     letter: "B",
     frames: [[4, 2], [5, 2]],
     animCycle: 300,
-    wall: true
+    blocksWalk: true,
+    blocksSight: false,
+    blocksShot: false
 };
 
 tileTypes.emptyBrazier = {
@@ -51,7 +57,9 @@ tileTypes.emptyBrazier = {
     letter: "b",
     frames: [[3, 2]],
     animCycle: 1000,
-    wall: true
+    blocksWalk: true,
+    blocksSight: false,
+    blocksShot: false
 };
 
 tileTypes.stairsDown = {
@@ -59,10 +67,129 @@ tileTypes.stairsDown = {
     letter: "<",
     frames: [[0, 4]],
     animCycle: 1000,
-    wall: false,
+    blocksWalk: false,
+    blocksSight: false,
+    blocksShot: false,
     onCreatureIntersect: function(t, c, l) {
         if (c == l.player) { victory = true; }
     }
+};
+
+tileTypes.treasureChest = {
+    name: "treasureChest",
+    letter: "C",
+    frames: [[0, 4]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: false,
+    blocksShot: false,
+    onCreatureIntersect: function(t, c, l) {
+    
+    }
+};
+
+tileTypes.horizBars = {
+    name: "horizBars",
+    letter: "=",
+    frames: [[0, 4]],
+    animCycle: 1000,
+    blocksWalk: true,
+    blocksSight: false,
+    blocksShot: true
+};
+
+tileTypes.vertBars = {
+    name: "vertBars",
+    letter: "|",
+    frames: [[0, 4]],
+    animCycle: 1000,
+    blocksWalk: true,
+    blocksSight: false,
+    blocksShot: true
+};
+
+tileTypes.trapdoor = {
+    name: "trapdoor",
+    letter: "T",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: false,
+    blocksShot: false,
+    onCreatureIntersect: function(t, c, l) {
+    }
+};
+
+tileTypes.openTrapdoor = {
+    name: "openTrapdoor",
+    letter: "t",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: false,
+    blocksShot: false
+};
+
+tileTypes.torch = {
+    name: "torch",
+    letter: "!",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: true,
+    blocksSight: true,
+    blocksShot: true
+};
+
+tileTypes.basin = {
+    name: "basin",
+    letter: "U",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: true,
+    blocksSight: false,
+    blocksShot: false
+};
+
+tileTypes.emptyBasin = {
+    name: "emptyBasin",
+    letter: "u",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: true,
+    blocksSight: false,
+    blocksShot: false
+};
+
+tileTypes.pit = {
+    name: "pit",
+    letter: "_",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: true,
+    blocksSight: false,
+    blocksShot: false
+};
+
+tileTypes.eyelessOne = {
+    name: "eyelessOne",
+    letter: "E",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: true,
+    blocksShot: true,
+    onCreatureIntersect: function(t, c, l) {
+    }
+};
+
+tileTypes.usedEyelessOne = {
+    name: "usedEyelessOne",
+    letter: "e",
+    frames: [[0, 0]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: true,
+    blocksShot: true
 };
 
 var letterToTileType = {};
