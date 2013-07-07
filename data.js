@@ -78,7 +78,7 @@ tileTypes.stairsDown = {
 tileTypes.treasureChest = {
     name: "treasureChest",
     letter: "C",
-    frames: [[0, 4]],
+    frames: [[0, 5]],
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: false,
@@ -88,10 +88,20 @@ tileTypes.treasureChest = {
     }
 };
 
+tileTypes.openTreasureChest = {
+    name: "openTreasureChest",
+    letter: "c",
+    frames: [[1, 5]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: false,
+    blocksShot: false
+};
+
 tileTypes.horizBars = {
     name: "horizBars",
     letter: "=",
-    frames: [[0, 4]],
+    frames: [[5, 2]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -101,7 +111,7 @@ tileTypes.horizBars = {
 tileTypes.vertBars = {
     name: "vertBars",
     letter: "|",
-    frames: [[0, 4]],
+    frames: [[5, 3]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -123,7 +133,7 @@ tileTypes.trapdoor = {
 tileTypes.openTrapdoor = {
     name: "openTrapdoor",
     letter: "t",
-    frames: [[0, 0]],
+    frames: [[5, 4]],
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: false,
@@ -133,7 +143,17 @@ tileTypes.openTrapdoor = {
 tileTypes.torch = {
     name: "torch",
     letter: "!",
-    frames: [[0, 0]],
+    frames: [[5, 6], [5, 7]],
+    animCycle: 300,
+    blocksWalk: true,
+    blocksSight: true,
+    blocksShot: true
+};
+
+tileTypes.extinguishedTorch = {
+    name: "extinguishedTorch",
+    letter: ".",
+    frames: [[5, 5]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: true,
@@ -143,7 +163,7 @@ tileTypes.torch = {
 tileTypes.basin = {
     name: "basin",
     letter: "U",
-    frames: [[0, 0]],
+    frames: [[5, 8]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -153,7 +173,7 @@ tileTypes.basin = {
 tileTypes.emptyBasin = {
     name: "emptyBasin",
     letter: "u",
-    frames: [[0, 0]],
+    frames: [[3, 2]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -163,7 +183,7 @@ tileTypes.emptyBasin = {
 tileTypes.pit = {
     name: "pit",
     letter: "_",
-    frames: [[0, 0]],
+    frames: [[5, 9]],
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
@@ -173,7 +193,7 @@ tileTypes.pit = {
 tileTypes.eyelessOne = {
     name: "eyelessOne",
     letter: "E",
-    frames: [[0, 0]],
+    frames: [[5, 10]],
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: true,
