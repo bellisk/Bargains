@@ -205,7 +205,7 @@ tileTypes.eyelessOne = {
 tileTypes.usedEyelessOne = {
     name: "usedEyelessOne",
     letter: "e",
-    frames: [[0, 0]],
+    frames: [[5, 11]],
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: true,
