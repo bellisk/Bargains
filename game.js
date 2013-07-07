@@ -29,7 +29,7 @@ function setup() {
     scrollX = 0;
     scrollY = 0;
     
-    for (var i = 0; i < 0; i++) {
+    for (var i = 0; i < 20; i++) {
         var x = randint(0, currentLevel.map[0].length);
         var y = randint(0, currentLevel.map.length);
         if (!blocksWalkAt(x, y)) {

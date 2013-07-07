@@ -10,6 +10,9 @@ function generateMap() {
     };
     currentLevel.map = form.map(function(line) {
         return line.map(function(cell) {
+            if (!letterToTileType[cell]) {
+                console.log(cell);
+            }
             return { type: letterToTileType[cell] };
         });
     });
@@ -251,17 +254,17 @@ mapForms.push({
 
 mapForms.push({
     tags: ["9x9"],
-    subs: ["corner", "3x3", "pillar"],
+    subs: ["corner", "3x3", "pillar", "h", "v"],
     grid:"\
 ---------\n\
--0hhh0_--\n\
--v1--v_--\n\
--v---v_--\n\
--v-------\n\
--0hhh0---\n\
+-03330_--\n\
+-41--4_--\n\
+-4---4_--\n\
+-4-------\n\
+-03330---\n\
 ----2----\n\
 --2---2--\n\
-----2----"
+---------"
 });
 
 mapForms.push({
