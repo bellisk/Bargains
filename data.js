@@ -222,6 +222,7 @@ tileTypes.eyelessOne = {
     blocksSight: true,
     blocksShot: true,
     onCreatureIntersect: function(t, c, l) {
+        if (c != currentLevel.player) { return; }
         if (!t.gain) {
             var gains = bargainTypes.filter(function(b) { return b.gain && b.valid(); });
             var losses = bargainTypes.filter(function(b) { return !b.gain && b.valid(); });

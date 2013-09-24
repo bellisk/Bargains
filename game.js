@@ -79,7 +79,7 @@ function blocksShotAt(x, y) {
 setup();
 
 function moveCreature(creature, dx, dy) {
-    if (dx != 0 && dy != 0) {
+    if (dx != 0 || dy != 0) {
         creature.standingStill = 0;
         if (creature.type.trapCheckDelay) {
             creature.nextTrapCheck = creature.type.trapCheckDelay;
