@@ -223,11 +223,17 @@ tileTypes.eyelessOne = {
     blocksShot: true,
     onCreatureIntersect: function(t, c, l) {
         if (!t.gain) {
-            t.gain = randitem(bargainTypes.filter(function(b) { return b.gain && b.valid(); }));
-            t.loss = randitem(bargainTypes.filter(function(b) { return !b.gain && b.valid(); }));
+            var gains = bargainTypes.filter(function(b) { return b.gain && b.valid(); });
+            var losses = bargainTypes.filter(function(b) { return !b.gain && b.valid(); });
+            if (gains.length > 0 && losses.length > 0) {
+                t.gain = randitem(gains);
+                t.loss = randitem(losses);
+            }
         }
-        t.gain.make();
-        t.loss.make();
+        if (t.gain) {
+            t.gain.make();
+            t.loss.make();
+        }
         currentLevel.map[t.y][t.x].type = tileTypes.usedEyelessOne;
     }
 };
