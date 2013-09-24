@@ -131,6 +131,10 @@ tileTypes.trapdoor = {
     blocksSight: false,
     blocksShot: false,
     onCreatureIntersect: function(t, c, l) {
+        if (c == currentLevel.player) {
+            currentLevel.map[t.y][t.x].type = tileTypes.openingTrapdoor;
+            doDamage(null, t.x, t.y, 1, 1, 3);
+        }
     }
 };
 
@@ -142,6 +146,21 @@ tileTypes.openTrapdoor = {
     blocksWalk: false,
     blocksSight: false,
     blocksShot: false
+};
+
+tileTypes.openingTrapdoor = {
+    name: "openingTrapdoor",
+    letter: "`",
+    frames: [[4, 5]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: false,
+    blocksShot: false,
+    tick: function(t, ms) {
+        if (creatureCorners(currentLevel.player).indexOf(t) == -1) {
+            currentLevel.map[t.y][t.x].type = tileTypes.openTrapdoor;
+        }
+    }
 };
 
 tileTypes.torch = {
@@ -231,12 +250,34 @@ creatureTypes.player = {
         if (c.attackTime > 0) { return [7 + c.attackDirection, 0]; }
         return [3 + c.direction, 0];
     },
-    tick: function(c, l, ms) {},
+    tick: function(c, l, ms) {
+        if (c.standingStill >= c.nextTrapCheck) {
+            c.nextTrapCheck += c.type.trapCheckInterval;
+            c.direction = randint(0, 4);
+            var r = c.type.trapCheckRange;
+            for (var dy = -r; dy <= r; dy++) {
+                var y = Math.floor(c.y + dy);
+                if (y < 0 || y >= currentLevel.map.length) { continue; }
+                for (var dx = -r; dx < r; dx++) {
+                    var x = Math.floor(c.x + dx);
+                    if (x < 0 || x >= currentLevel.map[y].length) { continue; }
+                    if (tileAt(x, y).type == tileTypes.trapdoor && Math.random() < c.type.trapFindChance) {
+                        currentLevel.map[y][x].type = tileTypes.openingTrapdoor;
+                    }
+                }
+            }
+        }
+    },
     attackTime: 150,
     reload: 250,
     xSize: 0.4375,
     ySize: 0.5,
-    hp: 10
+    hp: 10,
+    visionRange: 8,
+    trapCheckDelay: 1100,
+    trapCheckRange: 4,
+    trapFindChance: 0.2,
+    trapCheckInterval: 1100
 };
 
 creatureTypes.floobler = {
@@ -248,7 +289,7 @@ creatureTypes.floobler = {
     },
     tick: function(c, l, ms) {
         var pDistSq = (c.x + 0.5 * c.type.xSize - (l.player.x + l.player.type.xSize)) * (c.x + 0.5 * c.type.xSize - (l.player.x + l.player.type.xSize)) + (c.y + 0.5 * c.type.ySize - (l.player.y + l.player.type.ySize)) * (c.y + 0.5 * c.type.ySize - (l.player.y + l.player.type.ySize));
-        var visionDist = 4;
+        var visionDist = c.type.visionRange;
         var attackDist = 1;
         var minDist = 0.35;
         if (pDistSq < visionDist * visionDist) {
@@ -273,6 +314,7 @@ creatureTypes.floobler = {
             moveCreature(c, this.speed * dirDx(c.wanderDirection), this.speed * dirDy(c.wanderDirection));
         }
     },
+    visionRange: 4,
     attackTime: 300,
     reload: 300,
     xSize: 0.875,

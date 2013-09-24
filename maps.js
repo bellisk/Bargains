@@ -16,6 +16,12 @@ function generateMap() {
             return { type: letterToTileType[cell] };
         });
     });
+    for (var y = 0; y < currentLevel.map.length; y++) {
+        for (var x = 0; x < currentLevel.map[y].length; x++) {
+            currentLevel.map[y][x].x = x;
+            currentLevel.map[y][x].y = y;
+        }
+    }
     return currentLevel;
 }
 

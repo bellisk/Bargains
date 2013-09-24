@@ -18,6 +18,8 @@ function setup() {
         y: 3,
         reload: 0,
         attackTime: 0,
+        standingStill: 0,
+        nextTrapCheck: 1000,
         hp: 10,
         spells: [spellTypes.shootFire, spellTypes.explodeBrazier],
         spell: spellTypes.explodeBrazier
@@ -41,6 +43,7 @@ function setup() {
                 y: y,
                 reload: 0,
                 attackTime: 0,
+                standingStill: 0,
                 hp: 5
             });
         }
@@ -76,6 +79,13 @@ function blocksShotAt(x, y) {
 setup();
 
 function moveCreature(creature, dx, dy) {
+    if (dx != 0 && dy != 0) {
+        creature.standingStill = 0;
+        if (creature.type.trapCheckDelay) {
+            creature.nextTrapCheck = creature.type.trapCheckDelay;
+        }
+    }
+    
     if (dx > 0) {
         var newX = creature.x + dx;
         var rectRight = newX + creature.type.xSize;
@@ -153,6 +163,10 @@ function doDamage(c, ax, ay, axSize, aySize, dmg) {
 
 function attack(c, direction) {
     if (c.attackTime > 0 || c.reload > 0) { return; }
+    c.standingStill = 0;
+    if (c.type.trapCheckDelay) {
+        c.nextTrapCheck = c.type.trapCheckDelay;
+    }
     c.attackDirection = direction;
     c.attackTime = c.type.attackTime;
     var ax = c.x + c.type.xSize * 0.5 + dirDx(direction) * 0.5 - 0.5;
@@ -162,9 +176,17 @@ function attack(c, direction) {
 
 function cast(c) {
     if (c.attackTime > 0 || c.reload > 0) { return; }
+    c.standingStill = 0;
+    if (c.type.trapCheckDelay) {
+        c.nextTrapCheck = c.type.trapCheckDelay;
+    }
     c.attackDirection = c.direction;
     c.attackTime = c.type.attackTime;
     c.spell.cast(c, currentLevel);
+}
+
+function tickTile(t, ms) {
+    t.type.tick(t, ms);
 }
 
 function tickCreature(c, ms) {
@@ -182,33 +204,23 @@ function tickCreature(c, ms) {
     if (c.reload > 0) {
         c.reload -= ms;
     }
+    c.standingStill += ms;
     
     c.type.tick(c, currentLevel, ms);
     
+    creatureCorners(c).forEach(function(t) {
+        if (t.type.onCreatureIntersect) {
+            t.type.onCreatureIntersect(t, c, currentLevel);
+        }
+    });
+    
+    return true;
+}
+
+function creatureCorners(c) {    
     var rectRight = c.x + c.type.xSize;
     var rectBottom = c.y + c.type.ySize;
-
-    var t = tileAt(c.x, c.y);
-    if (t.type.onCreatureIntersect) {
-        t.type.onCreatureIntersect(t, c, currentLevel);
-    }
-
-    t = tileAt(rectRight, c.y);
-    if (t.type.onCreatureIntersect) {
-        t.type.onCreatureIntersect(t, c, currentLevel);
-    }
-
-    t = tileAt(c.x, rectBottom);
-    if (t.type.onCreatureIntersect) {
-        t.type.onCreatureIntersect(t, c, currentLevel);
-    }
-
-    t = tileAt(rectRight, rectBottom);
-    if (t.type.onCreatureIntersect) {
-        t.type.onCreatureIntersect(t, c, currentLevel);
-    }
-
-    return true;
+    return [tileAt(c.x, c.y), tileAt(rectRight, c.y), tileAt(c.x, rectBottom), tileAt(rectRight, rectBottom)];
 }
 
 function addParticle(type, x, y) {
@@ -295,6 +307,15 @@ function update(ms) {
         if (s.life <= 0) {
             currentLevel.firstEmptyShot = Math.min(currentLevel.firstEmptyShot, i);
             currentLevel.shots[i] = null;
+        }
+    }
+    
+    for (var y = 0; y < currentLevel.map.length; y++) {
+        for (var x = 0; x < currentLevel.map[y].length; x++) {
+            var t = currentLevel.map[y][x];
+            if (t.type.tick) {
+                tickTile(t, ms);
+            }
         }
     }
     
