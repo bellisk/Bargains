@@ -21,8 +21,8 @@ function setup() {
         standingStill: 0,
         nextTrapCheck: 1000,
         hp: 10,
-        spells: [spellTypes.shootFire, spellTypes.explodeBrazier],
-        spell: spellTypes.explodeBrazier
+        spells: [],
+        spell: null
     };
 
     victory = false;
@@ -258,8 +258,12 @@ function update(ms) {
     var time = ms * FRAMERATE / 1000;
 
     if (victory || defeat) {
-        if (keyDown(" ")) { setup(); }
+        if (keyDown(" ")) { resetPlayerType(); setup(); }
         return;
+    }
+    
+    if (currentLevel.player.spell == null && currentLevel.player.spells.length > 0) {
+        currentLevel.player.spell = currentLevel.player.spells[0];
     }
     
     if (keyDown("W")) { moveCreature(currentLevel.player, 0, -currentLevel.player.type.speed * time); }
@@ -278,7 +282,7 @@ function update(ms) {
         }
     }
 
-    if (keyDown(" ")) { cast(currentLevel.player); }
+    if (keyDown(" ") && currentLevel.player.spell) { cast(currentLevel.player); }
     
     scrollX = -currentLevel.player.x * GRID_SIZE + buffer.width / 2 - GRID_SIZE / 2;
     scrollY = -currentLevel.player.y * GRID_HEIGHT + buffer.height / 2 - GRID_HEIGHT / 2;

@@ -222,6 +222,13 @@ tileTypes.eyelessOne = {
     blocksSight: true,
     blocksShot: true,
     onCreatureIntersect: function(t, c, l) {
+        if (!t.gain) {
+            t.gain = randitem(bargainTypes.filter(function(b) { return b.gain && b.valid(); }));
+            t.loss = randitem(bargainTypes.filter(function(b) { return !b.gain && b.valid(); }));
+        }
+        t.gain.make();
+        t.loss.make();
+        currentLevel.map[t.y][t.x].type = tileTypes.usedEyelessOne;
     }
 };
 
@@ -241,44 +248,94 @@ for (var key in tileTypes) {
     letterToTileType[tileTypes[key].letter] = tileTypes[key];
 }
 
+var bargainTypes = [];
+
+bargainTypes.push({
+    gain: false,
+    desc: "Lose half your sight range",
+    valid: function() {
+        return currentLevel.player.type.visionRange >= 4;
+    },
+    make: function() {
+        currentLevel.player.type.visionRange /= 2;
+    }
+});
+
+bargainTypes.push({
+    gain: false,
+    desc: "Lose ability to detect trapdoors",
+    valid: function() {
+        return currentLevel.player.type.trapCheckRange > 0;
+    },
+    make: function() {
+        currentLevel.player.type.trapCheckRange = 0;
+    }
+});
+
+bargainTypes.push({
+    gain: true,
+    desc: "Learn Explode Brazier spell",
+    valid: function() {
+        return currentLevel.player.spells.indexOf(spellTypes.explodeBrazier) == -1;
+    },
+    make: function() {
+        currentLevel.player.spells.push(spellTypes.explodeBrazier);
+    }
+});
+
+bargainTypes.push({
+    gain: true,
+    desc: "Learn Shoot Fire spell",
+    valid: function() {
+        return currentLevel.player.spells.indexOf(spellTypes.shootFire) == -1;
+    },
+    make: function() {
+        currentLevel.player.spells.push(spellTypes.shootFire);
+    }
+});
+
 var creatureTypes = {};
 
-creatureTypes.player = {
-    name: "player",
-    speed: 4 * SPF,
-    image: function(c) {
-        if (c.attackTime > 0) { return [7 + c.attackDirection, 0]; }
-        return [3 + c.direction, 0];
-    },
-    tick: function(c, l, ms) {
-        if (c.standingStill >= c.nextTrapCheck) {
-            c.nextTrapCheck += c.type.trapCheckInterval;
-            c.direction = randint(0, 4);
-            var r = c.type.trapCheckRange;
-            for (var dy = -r; dy <= r; dy++) {
-                var y = Math.floor(c.y + dy);
-                if (y < 0 || y >= currentLevel.map.length) { continue; }
-                for (var dx = -r; dx < r; dx++) {
-                    var x = Math.floor(c.x + dx);
-                    if (x < 0 || x >= currentLevel.map[y].length) { continue; }
-                    if (tileAt(x, y).type == tileTypes.trapdoor && Math.random() < c.type.trapFindChance) {
-                        currentLevel.map[y][x].type = tileTypes.openingTrapdoor;
+function resetPlayerType() {
+    creatureTypes.player = {
+        name: "player",
+        speed: 4 * SPF,
+        image: function(c) {
+            if (c.attackTime > 0) { return [7 + c.attackDirection, 0]; }
+            return [3 + c.direction, 0];
+        },
+        tick: function(c, l, ms) {
+            if (c.standingStill >= c.nextTrapCheck && c.type.trapCheckRange > 0) {
+                c.nextTrapCheck += c.type.trapCheckInterval;
+                c.direction = randint(0, 4);
+                var r = c.type.trapCheckRange;
+                for (var dy = -r; dy <= r; dy++) {
+                    var y = Math.floor(c.y + dy);
+                    if (y < 0 || y >= currentLevel.map.length) { continue; }
+                    for (var dx = -r; dx < r; dx++) {
+                        var x = Math.floor(c.x + dx);
+                        if (x < 0 || x >= currentLevel.map[y].length) { continue; }
+                        if (tileAt(x, y).type == tileTypes.trapdoor && Math.random() < c.type.trapFindChance) {
+                            currentLevel.map[y][x].type = tileTypes.openingTrapdoor;
+                        }
                     }
                 }
             }
-        }
-    },
-    attackTime: 150,
-    reload: 250,
-    xSize: 0.4375,
-    ySize: 0.5,
-    hp: 10,
-    visionRange: 8,
-    trapCheckDelay: 1100,
-    trapCheckRange: 4,
-    trapFindChance: 0.2,
-    trapCheckInterval: 1100
-};
+        },
+        attackTime: 150,
+        reload: 250,
+        xSize: 0.4375,
+        ySize: 0.5,
+        hp: 10,
+        visionRange: 8,
+        trapCheckDelay: 1100,
+        trapCheckRange: 4,
+        trapFindChance: 0.2,
+        trapCheckInterval: 1100
+    };
+}
+
+resetPlayerType();
 
 creatureTypes.floobler = {
     name: "floobler",
