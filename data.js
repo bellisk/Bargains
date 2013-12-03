@@ -213,6 +213,16 @@ tileTypes.pit = {
     blocksShot: false
 };
 
+tileTypes.usedEyelessOne = {
+    name: "usedEyelessOne",
+    letter: "e",
+    frames: [[11, 5]],
+    animCycle: 1000,
+    blocksWalk: false,
+    blocksSight: true,
+    blocksShot: true
+};
+
 tileTypes.eyelessOne = {
     name: "eyelessOne",
     letter: "E",
@@ -221,8 +231,10 @@ tileTypes.eyelessOne = {
     blocksWalk: false,
     blocksSight: true,
     blocksShot: true,
+    turnsInto: tileTypes.usedEyelessOne,
     onCreatureIntersect: function(t, c, l) {
         if (c != currentLevel.player) { return; }
+        if (c.bargainCooldown > 0) { return; }
         if (!t.gain) {
             var gains = bargainTypes.filter(function(b) { return b.gain && b.valid(); });
             var losses = bargainTypes.filter(function(b) { return !b.gain && b.valid(); });
@@ -232,21 +244,13 @@ tileTypes.eyelessOne = {
             }
         }
         if (t.gain) {
-            t.gain.make();
-            t.loss.make();
+            //t.gain.make();
+            //t.loss.make();
+            l.bargainDialogue = true;
+            l.bargainTile = t;
         }
-        currentLevel.map[t.y][t.x].type = tileTypes.usedEyelessOne;
+        //currentLevel.map[t.y][t.x].type = tileTypes.usedEyelessOne;
     }
-};
-
-tileTypes.usedEyelessOne = {
-    name: "usedEyelessOne",
-    letter: "e",
-    frames: [[11, 5]],
-    animCycle: 1000,
-    blocksWalk: false,
-    blocksSight: true,
-    blocksShot: true
 };
 
 var letterToTileType = {};
@@ -328,6 +332,7 @@ function resetPlayerType() {
                     }
                 }
             }
+            c.bargainCooldown -= ms;
         },
         attackTime: 150,
         reload: 250,

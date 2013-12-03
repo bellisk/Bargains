@@ -20,6 +20,7 @@ function setup() {
         attackTime: 0,
         standingStill: 0,
         nextTrapCheck: 1000,
+        bargainCooldown: 0,
         hp: 10,
         spells: [],
         spell: null
@@ -264,6 +265,20 @@ function update(ms) {
     
     if (currentLevel.player.spell == null && currentLevel.player.spells.length > 0) {
         currentLevel.player.spell = currentLevel.player.spells[0];
+    }
+
+    if (currentLevel.bargainDialogue) {
+        if (keyDown("Y")) {
+            currentLevel.bargainTile.gain.make();
+            currentLevel.bargainTile.loss.make();
+            currentLevel.bargainTile.type = currentLevel.bargainTile.type.turnsInto;
+            currentLevel.bargainDialogue = false;
+        }
+        if (keyDown("N")) {
+            currentLevel.bargainDialogue = false;
+            currentLevel.player.bargainCooldown = 5000;
+        }
+        return;
     }
     
     if (keyDown("W")) { moveCreature(currentLevel.player, 0, -currentLevel.player.type.speed * time); }

@@ -8,6 +8,7 @@ buffer.height = canvas.height / SCALE;
 var canvasContext = canvas.getContext("2d");
 canvasContext.imageSmoothingEnabled = false;
 var c = buffer.getContext("2d");
+c.imageSmoothingEnabled = false;
 var keys = {};
 var graphicsImage = new Image();
 graphicsImage.src = "graphicsImage.png";
@@ -70,6 +71,18 @@ function draw() {
     for (var i = 0; i < currentLevel.player.spells.length; i++) {
         c.fillStyle = currentLevel.player.spell == currentLevel.player.spells[i] ? "#ff55ff" : "#aa33aa";
         c.fillText((i + 1) + " " + currentLevel.player.spells[i].displayName, 5, 24 + i * 12);
+    }
+
+    if (currentLevel.bargainDialogue) {
+        c.fillStyle = "#444444";
+        c.fillRect(15, 15, 170, 120);
+        blit(graphicsImage, currentLevel.bargainTile.type.frames[0][0] * (GRID_SIZE + 1), currentLevel.bargainTile.type.frames[0][1] * (GRID_SIZE + 1), GRID_SIZE, GRID_SIZE, 76, 20, 48, 48);
+        c.fillStyle = "white";
+        c.fillText("Do you wish to make this bargain?", 20, 80);
+        c.fillText(currentLevel.bargainTile.gain.desc, 20, 95);
+        c.fillText(currentLevel.bargainTile.loss.desc, 20, 110);
+        c.fillStyle = "yellow";
+        c.fillText("Y / N", 20, 125);
     }
 
     c.font = "20px Verdana";
