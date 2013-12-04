@@ -37,6 +37,10 @@ function inVisionRange(c, x, y) {
     return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= c.type.visionRange * c.type.visionRange;
 }
 
+function fullyVisible(c, x, y) {
+    return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= (c.type.visionRange - 1) * (c.type.visionRange - 1);
+}
+
 function draw() {
     c.fillStyle = "black";
     c.fillRect(0, 0, 800, 600);
@@ -49,6 +53,9 @@ function draw() {
             var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
             var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
             gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
+            if (!fullyVisible(currentLevel.player, x, y)) {
+                gblit(0, 6, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
+            }
         }
         currentLevel.monsters.forEach(function(m) {
             if (inVisionRange(currentLevel.player, m.x, m.y) && Math.floor(m.y + m.type.ySize) == y) { drawCreature(m); }
@@ -120,7 +127,7 @@ function keyDown(key) {
 
 function blit(img, sx, sy, sw, sh, dx, dy, dw, dh) {
     if (dx > buffer.width || dy > buffer.height || dx + dw < 0 || dy + dh < 0) { return; }
-    c.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    c.drawImage(img, sx, sy, sw, sh, Math.floor(dx), Math.floor(dy), dw, dh);
 }
 
 function gblit(sx, sy, dx, dy) {
