@@ -9,8 +9,21 @@ var scrollY = 0;
 
 var totalMs = 0;
 
-function setup() {
+function nextLevel() {
+    var p = currentLevel.player;
+    p.x = 3;
+    p.y = 3;
     currentLevel = generateMap(++depth);
+    currentLevel.player = p;
+    victory = false;
+    scrollX = 0;
+    scrollY = 0;
+    spawnFlooblers();
+}
+
+function setup() {
+    depth = 1;
+    currentLevel = generateMap(depth);
     currentLevel.player = {
         type: creatureTypes.player,
         direction: SOUTH,
@@ -34,6 +47,10 @@ function setup() {
     scrollX = 0;
     scrollY = 0;
     
+    spawnFlooblers();
+}
+
+function spawnFlooblers() {
     for (var i = 0; i < 20; i++) {
         var x = randint(0, currentLevel.map[0].length);
         var y = randint(0, currentLevel.map.length);
@@ -175,7 +192,7 @@ function getDamage(c) {
 function applyArmour(c, dmg) {
     var armour = c.inventory && c.inventory.armour ? (c.type.armour + c.inventory.armour.type.armourBonus) : c.type.armour;
     var armourType = c.inventory && c.inventory.armour ? (c.inventory.armour.type.armourType) : c.type.armourType;
-    if (armourType.priority <= dmg.type) {
+    if (armourType.priority <= dmg.type.priority) {
         return Math.max(0, dmg.amount - armour);
     } else {
         return dmg.amount;
@@ -282,8 +299,13 @@ function update(ms) {
     
     var time = ms * FRAMERATE / 1000;
 
-    if (victory || defeat) {
+    if (defeat) {
         if (keyDown(" ")) { resetPlayerType(); setup(); }
+        return;
+    }
+    
+    if (victory) {
+        if (keyDown(" ")) { nextLevel(); }
         return;
     }
     
