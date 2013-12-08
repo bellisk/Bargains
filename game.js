@@ -35,6 +35,7 @@ function setup() {
         standingStill: 0,
         nextTrapCheck: 1000,
         bargainCooldown: 0,
+        pickupCooldown: 0,
         hp: 10,
         spells: [],
         spell: null,
@@ -250,13 +251,29 @@ function tickCreature(c, ms) {
         if (t.type.onCreatureIntersect) {
             t.type.onCreatureIntersect(t, c, currentLevel);
         }
-        if (c == currentLevel.player && t.item) {
+        if (c == currentLevel.player && t.item && !currentLevel.player.inventory[t.item.type.slot]) {
             c.inventory[t.item.type.slot] = t.item;
             t.item = null;
         }
     });
     
     return true;
+}
+
+function pickUp(c) {
+    var done = false;
+    creatureCorners(c).forEach(function(t) {
+        if (done) { return; }
+        if (t.item) {
+            var tmp = t.item;
+            t.item = currentLevel.player.inventory[t.item.type.slot];
+            currentLevel.player.inventory[tmp.type.slot] = tmp;
+            done = true;
+        }
+    });
+    if (done) {
+        c.pickupCooldown = 500;
+    }
 }
 
 function creatureCorners(c) {    
@@ -345,6 +362,7 @@ function update(ms) {
     if (keyDown("L")) { attack(currentLevel.player, EAST); }
     
     if (keyDown("Q")) { quaff(); }
+    if (keyDown("P") && currentLevel.player.pickupCooldown <= 0) { pickUp(currentLevel.player); }
 
     for (var i = 1; i <= 9; i++) {
         if (keyDown("" + i) && i <= currentLevel.player.spells.length) {

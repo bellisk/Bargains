@@ -41,6 +41,15 @@ function fullyVisible(c, x, y) {
     return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= (c.type.visionRange - 1) * (c.type.visionRange - 1);
 }
 
+function pickupable() {
+    var item = null;
+    creatureCorners(currentLevel.player).forEach(function(t) {
+        if (item) { return; }
+        item = t.item;
+    });
+    return item;
+}
+
 function draw() {
     c.fillStyle = "black";
     c.fillRect(0, 0, 800, 600);
@@ -53,6 +62,9 @@ function draw() {
             var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
             var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
             gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
+            if (currentLevel.map[y][x].item) {
+                gblit(currentLevel.map[y][x].item.type.frames[animFrame][0], currentLevel.map[y][x].item.type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
+            }
             if (!fullyVisible(currentLevel.player, x, y)) {
                 gblit(0, 6, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
             }
@@ -80,7 +92,12 @@ function draw() {
     }
     
     c.fillStyle = "white";
-    c.fillText("WASD: move, IJKL: attack, Space: magic", 5, buffer.height - 5);
+    var pAble = pickupable();
+    if (pAble && currentLevel.player.pickupCooldown <= 0) {
+        c.fillText("P: Pick up " + pAble.type.name, 5, buffer.height - 5);
+    } else {
+        c.fillText("WASD: move, IJKL: attack, Space: magic", 5, buffer.height - 5);
+    }
     for (var i = 0; i < currentLevel.player.spells.length; i++) {
         c.fillStyle = currentLevel.player.spell == currentLevel.player.spells[i] ? "#ff55ff" : "#aa33aa";
         c.fillText((i + 1) + " " + currentLevel.player.spells[i].displayName, 5, 24 + i * 12);

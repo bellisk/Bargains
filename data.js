@@ -429,7 +429,7 @@ itemTypes.healingPotion = {
         c.hp = Math.min(c.hp + 4, c.type.hp);
     },
     quality: 1,
-    dropChance: 100
+    dropChance: 3
 };
 
 function getLoot(maxQuality) {
@@ -477,6 +477,7 @@ function resetPlayerType() {
                 }
             }
             c.bargainCooldown -= ms;
+            c.pickupCooldown -= ms;
         },
         attackTime: 150,
         reload: 250,
