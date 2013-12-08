@@ -1,4 +1,5 @@
 var currentLevel = null;
+var depth = 0;
 
 var victory = false;
 var defeat = false;
@@ -9,7 +10,7 @@ var scrollY = 0;
 var totalMs = 0;
 
 function setup() {
-    currentLevel = generateMap();
+    currentLevel = generateMap(++depth);
     currentLevel.player = {
         type: creatureTypes.player,
         direction: SOUTH,
@@ -23,7 +24,8 @@ function setup() {
         bargainCooldown: 0,
         hp: 10,
         spells: [],
-        spell: null
+        spell: null,
+        inventory: {}
     };
 
     victory = false;
@@ -149,16 +151,34 @@ function doDamage(c, ax, ay, axSize, aySize, dmg) {
             addParticle(particleTypes.blood, ax + axSize * 0.5 - particleTypes.blood.xSize * 0.5, ay + aySize * 0.5 - particleTypes.blood.ySize * 0.5);
         }
         hitMonsters.forEach(function(m) {
-           m.hp -= dmg; 
+            m.hp -= applyArmour(m, dmg);
         });
         return hitMonsters.length > 0;
     } else {
         if (currentLevel.player.x <= ax + axSize && currentLevel.player.x + currentLevel.player.type.xSize >= ax && currentLevel.player.y <= ay + aySize && currentLevel.player.y + currentLevel.player.type.ySize >= ay) {
             addParticle(particleTypes.blood, ax + axSize * 0.5 - particleTypes.blood.xSize * 0.5, ay + aySize * 0.5 - particleTypes.blood.ySize * 0.5);
-            currentLevel.player.hp -= dmg;
+            currentLevel.player.hp -= applyArmour(currentLevel.player, dmg);
             return true;
         }
         return false;
+    }
+}
+
+function getDamage(c) {
+    if (c.inventory && c.inventory.weapon) {
+        return { amount: c.type.damage + c.inventory.weapon.type.damageBonus, type: c.inventory.weapon.type.damageType };
+    } else {
+        return { amount: c.type.damage, type: c.type.damageType };
+    }
+}
+
+function applyArmour(c, dmg) {
+    var armour = c.inventory && c.inventory.armour ? (c.type.armour + c.inventory.armour.type.armourBonus) : c.type.armour;
+    var armourType = c.inventory && c.inventory.armour ? (c.inventory.armour.type.armourType) : c.type.armourType;
+    if (armourType.priority <= dmg.type) {
+        return Math.max(0, dmg.amount - armour);
+    } else {
+        return dmg.amount;
     }
 }
 
@@ -172,7 +192,7 @@ function attack(c, direction) {
     c.attackTime = c.type.attackTime;
     var ax = c.x + c.type.xSize * 0.5 + dirDx(direction) * 0.5 - 0.5;
     var ay = c.y + c.type.ySize * 0.5 + dirDy(direction) * 0.5 - 0.5;
-    doDamage(c, ax, ay, 1, 1, 1);
+    doDamage(c, ax, ay, 1, 1, getDamage(c));
 }
 
 function cast(c) {
@@ -212,6 +232,10 @@ function tickCreature(c, ms) {
     creatureCorners(c).forEach(function(t) {
         if (t.type.onCreatureIntersect) {
             t.type.onCreatureIntersect(t, c, currentLevel);
+        }
+        if (c == currentLevel.player && t.item) {
+            c.inventory[t.item.type.slot] = t.item;
+            t.item = null;
         }
     });
     

@@ -88,7 +88,9 @@ tileTypes.treasureChest = {
     blocksSight: false,
     blocksShot: false,
     onCreatureIntersect: function(t, c, l) {
-    
+        if (c != l.player) { return; }
+        t.item = getLoot(l.depth);
+        t.type = tileTypes.openTreasureChest;
     }
 };
 
@@ -133,7 +135,7 @@ tileTypes.trapdoor = {
     onCreatureIntersect: function(t, c, l) {
         if (c == currentLevel.player) {
             currentLevel.map[t.y][t.x].type = tileTypes.openingTrapdoor;
-            doDamage(null, t.x, t.y, 1, 1, 3);
+            doDamage(null, t.x, t.y, 1, 1, {amount: 3, type: damageTypes.blunt});
         }
     }
 };
@@ -305,6 +307,133 @@ bargainTypes.push({
     }
 });
 
+var damageTypes = {};
+
+damageTypes.blunt = {
+    name: "blunt",
+    priority: 2
+};
+
+damageTypes.sharp = {
+    name: "sharp",
+    priority: 1
+};
+
+damageTypes.magic = {
+    name: "magic",
+    priority: 0
+};
+
+var itemSlots = ["weapon", "armour", "potion"];
+
+var itemTypes = {};
+
+itemTypes.club = {
+    name: "club",
+    slot: "weapon",
+    frames: [[0, 8]],
+    animCycle: 1000,
+    damageType: damageTypes.blunt,
+    damageBonus: 1,
+    attackImages: [[11,0], [12, 0], [13, 0], [14, 0]],
+    quality: 1
+};
+
+itemTypes.dagger = {
+    name: "dagger",
+    slot: "weapon",
+    frames: [[1, 8]],
+    animCycle: 1000,
+    damageType: damageTypes.sharp,
+    damageBonus: 1,
+    attackImages: [[15,0], [16, 0], [17, 0], [18, 0]],
+    quality: 2
+};
+
+itemTypes.wand = {
+    name: "wand",
+    slot: "weapon",
+    frames: [[2, 8]],
+    animCycle: 1000,
+    damageType: damageTypes.magic,
+    damageBonus: 1,
+    attackImages: [[19,0], [20, 0], [21, 0], [22, 0]],
+    quality: 3
+};
+
+itemTypes.hammer = {
+    name: "hammer",
+    slot: "weapon",
+    frames: [[0, 7]],
+    animCycle: 1000,
+    damageType: damageTypes.blunt,
+    damageBonus: 3,
+    attackImages: [[23,0], [24, 0], [25, 0], [26, 0]],
+    quality: 3
+};
+
+itemTypes.sword = {
+    name: "sword",
+    slot: "weapon",
+    frames: [[1, 7]],
+    animCycle: 1000,
+    damageType: damageTypes.sharp,
+    damageBonus: 3,
+    attackImages: [[7, 1], [8, 1], [9, 1], [10, 1]],
+    quality: 4
+};
+
+itemTypes.staff = {
+    name: "staff",
+    slot: "weapon",
+    frames: [[2, 7]],
+    animCycle: 1000,
+    damageType: damageTypes.magic,
+    damageBonus: 3,
+    attackImages: [[11, 1], [12, 1], [13, 1], [14, 1]],
+    quality: 5
+};
+
+var shapes = ["tabard", "armor"];
+
+var materials = ["leather", "steel", "magic"];
+var armourTypes = ["blunt", "sharp", "magic"];
+
+for (var s = 0; s < shapes.length; s++) {
+    for (var m = 0; m < materials.length; m++) {
+        itemTypes[materials[m] + shapes[s]] = {
+            name: materials[m] + " " + shapes[s],
+            slot: "armour",
+            frames: [[3 + m, 8 - s]],
+            animCycle: 1000,
+            armourType: damageTypes[armourTypes[m]],
+            armourBonus: 1 + s,
+            quality: 2 * s + m + 1
+        };
+    }
+}
+
+itemTypes.healingPotion = {
+    name: "healing potion",
+    slot: "potion",
+    frames: [[1, 9]],
+    animCycle: 1000,
+    effect: function(c) {
+        c.hp = Math.min(c.hp + 4, c.type.hp);
+    },
+    quality: 1
+};
+
+function getLoot(maxQuality) {
+    var available = [];
+    for (var k in itemTypes) {
+        if (itemTypes[k].quality <= maxQuality) {
+            available.push(itemTypes[k]);
+        }
+    }
+    return {type: randitem(available)};
+}
+
 var creatureTypes = {};
 
 function resetPlayerType() {
@@ -312,7 +441,12 @@ function resetPlayerType() {
         name: "player",
         speed: 4 * SPF,
         image: function(c) {
-            if (c.attackTime > 0) { return [7 + c.attackDirection, 0]; }
+            if (c.attackTime > 0) { 
+                if (c.inventory.weapon) {
+                    return c.inventory.weapon.type.attackImages[c.attackDirection];
+                }
+                return [7 + c.attackDirection, 0];
+            }
             return [3 + c.direction, 0];
         },
         tick: function(c, l, ms) {
@@ -339,6 +473,10 @@ function resetPlayerType() {
         xSize: 0.4375,
         ySize: 0.5,
         hp: 10,
+        damageType: damageTypes.blunt,
+        damage: 1,
+        armourType: damageTypes.blunt,
+        armour: 0,
         visionRange: 8,
         trapCheckDelay: 1100,
         trapCheckRange: 4,
@@ -388,7 +526,11 @@ creatureTypes.floobler = {
     reload: 300,
     xSize: 0.875,
     ySize: 0.875,
-    hp: 5
+    hp: 5,
+    damageType: damageTypes.blunt,
+    damage: 1,
+    armourType: damageTypes.blunt,
+    armour: 0,
 };
 
 var particleTypes = {};
@@ -418,7 +560,7 @@ shotTypes.fireball = {
     name: "fireball",
     life: 1300,
     speed: 6 * SPF,
-    dmg: 2,
+    dmg: {amount: 2, type: damageTypes.magic},
     frames: [[0, 3], [1, 3]],
     animCycle: 100,
     xSize: .4375,

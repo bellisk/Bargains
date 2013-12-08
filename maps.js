@@ -1,6 +1,7 @@
-function generateMap() {
+function generateMap(depth) {
     var form = fillForm(chooseForm("level"));
     var currentLevel = {
+        depth: depth,
         map: [],
         monsters: [],
         particles: [null],
@@ -13,7 +14,7 @@ function generateMap() {
             if (!letterToTileType[cell]) {
                 console.log(cell);
             }
-            return { type: letterToTileType[cell] };
+            return { type: letterToTileType[cell], item: null };
         });
     });
     for (var y = 0; y < currentLevel.map.length; y++) {

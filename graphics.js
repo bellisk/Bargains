@@ -72,6 +72,12 @@ function draw() {
     for (var i = 0; i < currentLevel.player.type.hp; i++) {
         gblit(i < currentLevel.player.hp ? 2 : 6, 2, buffer.width - (i + 1) * GRID_SIZE, 0);
     }
+
+    var itemX = 0;
+    for (var k in currentLevel.player.inventory) {
+        var item = currentLevel.player.inventory[k];
+        gblit(item.type.frames[0][0], item.type.frames[0][1], buffer.width - (itemX++ + 1) * GRID_SIZE, GRID_SIZE);
+    }
     
     c.fillStyle = "white";
     c.fillText("WASD: move, IJKL: attack, Space: magic", 5, buffer.height - 5);
