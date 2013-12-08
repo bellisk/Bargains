@@ -289,6 +289,13 @@ function addShot(type, x, y, direction, shooter) {
     }
 }
 
+function quaff() {
+    if (currentLevel.player.inventory.potion) {
+        currentLevel.player.inventory.potion.type.effect(currentLevel.player);
+        delete currentLevel.player.inventory.potion;
+    }
+}
+
 function update(ms) {
     totalMs += ms;
     msBuffer.push(ms);
@@ -336,6 +343,8 @@ function update(ms) {
     if (keyDown("J")) { attack(currentLevel.player, WEST); }
     if (keyDown("K")) { attack(currentLevel.player, SOUTH); }
     if (keyDown("L")) { attack(currentLevel.player, EAST); }
+    
+    if (keyDown("Q")) { quaff(); }
 
     for (var i = 1; i <= 9; i++) {
         if (keyDown("" + i) && i <= currentLevel.player.spells.length) {

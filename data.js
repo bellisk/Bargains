@@ -336,7 +336,8 @@ itemTypes.club = {
     damageType: damageTypes.blunt,
     damageBonus: 1,
     attackImages: [[11,0], [12, 0], [13, 0], [14, 0]],
-    quality: 1
+    quality: 1,
+    dropChance: 1
 };
 
 itemTypes.dagger = {
@@ -347,7 +348,8 @@ itemTypes.dagger = {
     damageType: damageTypes.sharp,
     damageBonus: 1,
     attackImages: [[15,0], [16, 0], [17, 0], [18, 0]],
-    quality: 2
+    quality: 2,
+    dropChance: 1
 };
 
 itemTypes.wand = {
@@ -358,7 +360,8 @@ itemTypes.wand = {
     damageType: damageTypes.magic,
     damageBonus: 1,
     attackImages: [[19,0], [20, 0], [21, 0], [22, 0]],
-    quality: 3
+    quality: 3,
+    dropChance: 1
 };
 
 itemTypes.hammer = {
@@ -369,7 +372,8 @@ itemTypes.hammer = {
     damageType: damageTypes.blunt,
     damageBonus: 3,
     attackImages: [[23,0], [24, 0], [25, 0], [26, 0]],
-    quality: 3
+    quality: 3,
+    dropChance: 1
 };
 
 itemTypes.sword = {
@@ -380,7 +384,8 @@ itemTypes.sword = {
     damageType: damageTypes.sharp,
     damageBonus: 3,
     attackImages: [[7, 1], [8, 1], [9, 1], [10, 1]],
-    quality: 4
+    quality: 4,
+    dropChance: 1
 };
 
 itemTypes.staff = {
@@ -391,7 +396,8 @@ itemTypes.staff = {
     damageType: damageTypes.magic,
     damageBonus: 3,
     attackImages: [[11, 1], [12, 1], [13, 1], [14, 1]],
-    quality: 5
+    quality: 5,
+    dropChance: 1
 };
 
 var shapes = ["tabard", "armor"];
@@ -408,7 +414,8 @@ for (var s = 0; s < shapes.length; s++) {
             animCycle: 1000,
             armourType: damageTypes[armourTypes[m]],
             armourBonus: 1 + s,
-            quality: 2 * s + m + 1
+            quality: 2 * s + m + 1,
+            dropChance: 1
         };
     }
 }
@@ -421,14 +428,17 @@ itemTypes.healingPotion = {
     effect: function(c) {
         c.hp = Math.min(c.hp + 4, c.type.hp);
     },
-    quality: 1
+    quality: 1,
+    dropChance: 100
 };
 
 function getLoot(maxQuality) {
     var available = [];
     for (var k in itemTypes) {
         if (itemTypes[k].quality <= maxQuality) {
-            available.push(itemTypes[k]);
+            for (var i = 0; i < itemTypes[k].dropChance; i++) {
+                available.push(itemTypes[k]);
+            }
         }
     }
     return {type: randitem(available)};
