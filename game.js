@@ -36,6 +36,10 @@ function setup() {
         nextTrapCheck: 1000,
         bargainCooldown: 0,
         pickupCooldown: 0,
+        speedDuration: 0,
+        invisibilityDuration: 0,
+        fireDuration: 0,
+        shieldDuration: 0,
         hp: 10,
         spells: [],
         spell: null,
@@ -176,6 +180,9 @@ function doDamage(c, ax, ay, axSize, aySize, dmg) {
         if (currentLevel.player.x <= ax + axSize && currentLevel.player.x + currentLevel.player.type.xSize >= ax && currentLevel.player.y <= ay + aySize && currentLevel.player.y + currentLevel.player.type.ySize >= ay) {
             addParticle(particleTypes.blood, ax + axSize * 0.5 - particleTypes.blood.xSize * 0.5, ay + aySize * 0.5 - particleTypes.blood.ySize * 0.5);
             currentLevel.player.hp -= applyArmour(currentLevel.player, dmg);
+            if (currentLevel.player.fireDuration > 0 && c) {
+                c.hp -= applyArmour(c, {amount: 2, type: damageTypes.magic});
+            }
             return true;
         }
         return false;
@@ -193,10 +200,11 @@ function getDamage(c) {
 function applyArmour(c, dmg) {
     var armour = c.inventory && c.inventory.armour ? (c.type.armour + c.inventory.armour.type.armourBonus) : c.type.armour;
     var armourType = c.inventory && c.inventory.armour ? (c.inventory.armour.type.armourType) : c.type.armourType;
+    var shield = c.shieldDuration > 0 ? 2 : 0;
     if (armourType.priority <= dmg.type.priority) {
-        return Math.max(0, dmg.amount - armour);
+        return Math.max(0, dmg.amount - armour - shield);
     } else {
-        return dmg.amount;
+        return Math.max(0, dmg.amount - shield);
     }
 }
 
@@ -313,6 +321,14 @@ function quaff() {
     }
 }
 
+function getSpeed(c) {
+    if (c.speedDuration > 0) {
+        return c.type.speed * 2;
+    } else {
+        return c.type.speed;
+    }
+}
+
 function update(ms) {
     totalMs += ms;
     msBuffer.push(ms);
@@ -351,10 +367,10 @@ function update(ms) {
         return;
     }
     
-    if (keyDown("W")) { moveCreature(currentLevel.player, 0, -currentLevel.player.type.speed * time); }
-    if (keyDown("A")) { moveCreature(currentLevel.player, -currentLevel.player.type.speed * time, 0); }
-    if (keyDown("S")) { moveCreature(currentLevel.player, 0, currentLevel.player.type.speed * time); }
-    if (keyDown("D")) { moveCreature(currentLevel.player, currentLevel.player.type.speed * time, 0); }
+    if (keyDown("W")) { moveCreature(currentLevel.player, 0, -getSpeed(currentLevel.player) * time); }
+    if (keyDown("A")) { moveCreature(currentLevel.player, -getSpeed(currentLevel.player) * time, 0); }
+    if (keyDown("S")) { moveCreature(currentLevel.player, 0, getSpeed(currentLevel.player) * time); }
+    if (keyDown("D")) { moveCreature(currentLevel.player, getSpeed(currentLevel.player) * time, 0); }
     
     if (keyDown("I")) { attack(currentLevel.player, NORTH); }
     if (keyDown("J")) { attack(currentLevel.player, WEST); }

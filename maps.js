@@ -83,6 +83,11 @@ mapForms.push({
 });
 
 mapForms.push({
+    tags: ["central"],
+    grid: "C"
+});
+
+mapForms.push({
     tags: ["central", "maybeTrap", "maybeDoor"],
     grid: "T"
 });
@@ -172,13 +177,13 @@ ___"
 
 mapForms.push({
     tags: ["9x9"],
-    subs: ["pillar"],
+    subs: ["pillar", "central"],
     grid:"\
 ---------\n\
 -0-----0-\n\
 ---------\n\
 -0-----0-\n\
----------\n\
+----1----\n\
 -0-----0-\n\
 ---------\n\
 -0-----0-\n\
@@ -231,7 +236,7 @@ mapForms.push({
 
 mapForms.push({
     tags: ["9x9"],
-    subs: ["corner", "v", "h"],
+    subs: ["corner", "v", "h", "central"],
     grid:"\
 ---------\n\
 -0-----0-\n\
@@ -239,7 +244,7 @@ mapForms.push({
 20-----02\n\
 ---020---\n\
 20-----02\n\
--1-----1-\n\
+-1--3--1-\n\
 -0-----0-\n\
 ---------"
 });

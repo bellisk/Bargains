@@ -423,13 +423,61 @@ for (var s = 0; s < shapes.length; s++) {
 itemTypes.healingPotion = {
     name: "healing potion",
     slot: "potion",
-    frames: [[1, 9]],
+    frames: [[2, 9]],
     animCycle: 1000,
     effect: function(c) {
         c.hp = Math.min(c.hp + 4, c.type.hp);
     },
     quality: 1,
-    dropChance: 3
+    dropChance: 6
+};
+
+itemTypes.speedPotion = {
+    name: "speed potion",
+    slot: "potion",
+    frames: [[3, 9]],
+    animCycle: 1000,
+    effect: function(c) {
+        c.speedDuration += 60000;
+    },
+    quality: 1,
+    dropChance: 2
+};
+
+itemTypes.invisibilityPotion = {
+    name: "invisibility potion",
+    slot: "potion",
+    frames: [[5, 9]],
+    animCycle: 1000,
+    effect: function(c) {
+        c.invisibilityDuration += 60000;
+    },
+    quality: 3,
+    dropChance: 1
+};
+
+itemTypes.firePotion = {
+    name: "fire potion",
+    slot: "potion",
+    frames: [[1, 9]],
+    animCycle: 1000,
+    effect: function(c) {
+        c.fireDuration += 60000;
+    },
+    quality: 2,
+    dropChance: 2
+};
+
+itemTypes.shieldingPotion = {
+    name: "shielding potion",
+    slot: "potion",
+    frames: [[0, 9]],
+    animCycle: 1000,
+    effect: function(c) {
+        c.shieldDuration += 60000;
+    },
+    quality: 4,
+    dropChance: 1
 };
 
 function getLoot(maxQuality) {
@@ -478,6 +526,10 @@ function resetPlayerType() {
             }
             c.bargainCooldown -= ms;
             c.pickupCooldown -= ms;
+            c.speedDuration -= ms;
+            c.invisibilityDuration -= ms;
+            c.fireDuration -= ms;
+            c.shieldDuration -= ms;
         },
         attackTime: 150,
         reload: 250,
@@ -510,7 +562,7 @@ creatureTypes.floobler = {
         var visionDist = c.type.visionRange;
         var attackDist = 1;
         var minDist = 0.35;
-        if (pDistSq < visionDist * visionDist) {
+        if (pDistSq < visionDist * visionDist && l.player.invisibilityDuration <= 0) {
             var dx = l.player.x + 0.5 * l.player.type.xSize - (c.x + 0.5 * c.type.xSize);
             var dy = l.player.y + 0.5 * l.player.type.ySize - (c.y + 0.5 * c.type.ySize);
             var dxMove = Math.abs(dx) < minDist ? 0 : (dx > 0 ? 1 : -1);
@@ -611,27 +663,34 @@ spellTypes.explodeBrazier = {
     name: "explodeBrazier",
     displayName: "Explode Brazier",
     cast: function(c, l) {
-        var bx = -1;
-        var by = -1;
-        var minDistSq = 10000;
-        for (var y = 0; y < l.map.length; y++) {
-            for (var x = 0; x < l.map[y].length; x++) {
-                if (l.map[y][x].type != tileTypes.brazier) { continue; }
-                var bDistSq = (x + 0.5 - (c.x + 0.5 * c.type.xSize)) * (x + 0.5 - (c.x + 0.5 * c.type.xSize)) + (y + 0.5 - (c.y + 0.5 * c.type.ySize)) * (y + 0.5 - (c.y + 0.5 * c.type.ySize));
-                if (bDistSq < minDistSq) {
-                    minDistSq = bDistSq;
-                    bx = x;
-                    by = y;
-                }
-            }
-        }
-        if (bx != -1 && minDistSq <= 4 * 4) {
+        if (c.fireDuration > 0) {
             for (var i = 0; i < 16; i++) {
                 var dir = Math.PI * i * 2 / 16;
-                addShot(shotTypes.fireball, bx + 0.5 - shotTypes.fireball.xSize * 0.5 + Math.cos(dir), by + 0.5 - shotTypes.fireball.ySize * 0.5 + Math.sin(dir), dir, c);
-                
+                addShot(shotTypes.fireball, c.x + 0.5 * c.type.xSize - shotTypes.fireball.xSize * 0.5 + 1.5 * Math.cos(dir), c.y + 0.5 * c.type.ySize - shotTypes.fireball.ySize * 0.5 + 1.5 * Math.sin(dir), dir, c);
             }
-            l.map[by][bx].type = tileTypes.emptyBrazier;
+            c.fireDuration = 0;
+        } else {
+            var bx = -1;
+            var by = -1;
+            var minDistSq = 10000;
+            for (var y = 0; y < l.map.length; y++) {
+                for (var x = 0; x < l.map[y].length; x++) {
+                    if (l.map[y][x].type != tileTypes.brazier) { continue; }
+                    var bDistSq = (x + 0.5 - (c.x + 0.5 * c.type.xSize)) * (x + 0.5 - (c.x + 0.5 * c.type.xSize)) + (y + 0.5 - (c.y + 0.5 * c.type.ySize)) * (y + 0.5 - (c.y + 0.5 * c.type.ySize));
+                    if (bDistSq < minDistSq) {
+                        minDistSq = bDistSq;
+                        bx = x;
+                        by = y;
+                    }
+                }
+            }
+            if (bx != -1 && minDistSq <= 4 * 4) {
+                for (var i = 0; i < 16; i++) {
+                    var dir = Math.PI * i * 2 / 16;
+                    addShot(shotTypes.fireball, bx + 0.5 - shotTypes.fireball.xSize * 0.5 + Math.cos(dir), by + 0.5 - shotTypes.fireball.ySize * 0.5 + Math.sin(dir), dir, c);
+                }
+                l.map[by][bx].type = tileTypes.emptyBrazier;
+            }
         }
     }
 };
