@@ -39,7 +39,7 @@ function setup() {
         speedDuration: 0,
         invisibilityDuration: 0,
         fireDuration: 0,
-        shieldDuration: 0,
+        shieldDuration: 600000,
         hp: 10,
         spells: [],
         spell: null,

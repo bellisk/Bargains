@@ -492,20 +492,35 @@ function getLoot(maxQuality) {
     return {type: randitem(available)};
 }
 
+function getFrame(frames, ms, period) {
+    var i = Math.floor(ms / period) % frames.length;
+    return frames[i];
+}
+
 var creatureTypes = {};
 
 function resetPlayerType() {
     creatureTypes.player = {
         name: "player",
         speed: 4 * SPF,
-        image: function(c) {
+        image: function(c, ms) {
+            var imgs = [];
             if (c.attackTime > 0) { 
                 if (c.inventory.weapon) {
-                    return c.inventory.weapon.type.attackImages[c.attackDirection];
+                    imgs.push(c.inventory.weapon.type.attackImages[c.attackDirection]);
+                } else {
+                    imgs.push([7 + c.attackDirection, 0]);
                 }
-                return [7 + c.attackDirection, 0];
+            } else {
+                imgs.push([3 + c.direction, 0]);
             }
-            return [3 + c.direction, 0];
+            if (c.shieldDuration > 0) {
+                imgs.push(getFrame([[6, 3], [7, 3]], ms, 150));
+            }
+            if (c.fireDuration > 0) {
+                imgs.push(getFrame([[4, 3], [5, 3]], ms, 300));
+            }
+            return imgs;
         },
         tick: function(c, l, ms) {
             if (c.standingStill >= c.nextTrapCheck && c.type.trapCheckRange > 0) {
@@ -554,8 +569,8 @@ creatureTypes.floobler = {
     name: "floobler",
     speed: 2 * SPF,
     image: function(c) {
-        if (c.attackTime > 0) { return [2 + c.attackDirection, 1]; }
-        return [1, 1];
+        if (c.attackTime > 0) { return [[2 + c.attackDirection, 1]]; }
+        return [[1, 1]];
     },
     tick: function(c, l, ms) {
         var pDistSq = (c.x + 0.5 * c.type.xSize - (l.player.x + l.player.type.xSize)) * (c.x + 0.5 * c.type.xSize - (l.player.x + l.player.type.xSize)) + (c.y + 0.5 * c.type.ySize - (l.player.y + l.player.type.ySize)) * (c.y + 0.5 * c.type.ySize - (l.player.y + l.player.type.ySize));

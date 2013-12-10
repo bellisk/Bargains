@@ -14,9 +14,11 @@ var graphicsImage = new Image();
 graphicsImage.src = "graphicsImage.png";
 
 
-function drawCreature(creature) {
-    var s = creature.type.image(creature);
-    gblit(s[0], s[1], creature.x * GRID_SIZE + scrollX, creature.y * GRID_HEIGHT + scrollY);
+function drawCreature(creature, ms) {
+    var imgs = creature.type.image(creature, ms);
+    for (var i = 0; i < imgs.length; i++) {
+        gblit(imgs[i][0], imgs[i][1], creature.x * GRID_SIZE + scrollX, creature.y * GRID_HEIGHT + scrollY);
+    }
 }
 
 function drawParticle(p) {
@@ -70,9 +72,9 @@ function draw() {
             }
         }
         currentLevel.monsters.forEach(function(m) {
-            if (inVisionRange(currentLevel.player, m.x, m.y) && Math.floor(m.y + m.type.ySize) == y) { drawCreature(m); }
+            if (inVisionRange(currentLevel.player, m.x, m.y) && Math.floor(m.y + m.type.ySize) == y) { drawCreature(m, totalMs); }
         });
-        if (Math.floor(currentLevel.player.y + currentLevel.player.type.ySize) == y) { drawCreature(currentLevel.player); }
+        if (Math.floor(currentLevel.player.y + currentLevel.player.type.ySize) == y) { drawCreature(currentLevel.player, totalMs); }
         currentLevel.shots.forEach(function(s) {
             if (s != null && inVisionRange(currentLevel.player, s.x, s.y) && Math.floor(s.y + s.type.ySize) == y) { drawShot(s); }
         });
