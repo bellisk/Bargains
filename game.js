@@ -264,7 +264,6 @@ function tickCreature(c, ms) {
             t.item = null;
         }
     });
-    
     return true;
 }
 

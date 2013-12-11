@@ -539,12 +539,12 @@ function resetPlayerType() {
                     }
                 }
             }
-            c.bargainCooldown -= ms;
-            c.pickupCooldown -= ms;
-            c.speedDuration -= ms;
-            c.invisibilityDuration -= ms;
-            c.fireDuration -= ms;
-            c.shieldDuration -= ms;
+            c.bargainCooldown = Math.max(0, c.bargainCooldown - ms);
+            c.pickupCooldown = Math.max(0, c.pickupCooldown - ms);
+            c.speedDuration = Math.max(0, c.speedDuration - ms);
+            c.invisibilityDuration = Math.max(0, c.invisibilityDuration - ms);
+            c.fireDuration = Math.max(0, c.fireDuration - ms);
+            c.shieldDuration = Math.max(0, c.shieldDuration - ms);
         },
         attackTime: 150,
         reload: 250,
