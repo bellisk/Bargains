@@ -541,6 +541,7 @@ function resetPlayerType() {
             }
             c.bargainCooldown = Math.max(0, c.bargainCooldown - ms);
             c.pickupCooldown = Math.max(0, c.pickupCooldown - ms);
+            c.quaffCooldown = Math.max(0, c.quaffCooldown - ms);
             c.speedDuration = Math.max(0, c.speedDuration - ms);
             c.invisibilityDuration = Math.max(0, c.invisibilityDuration - ms);
             c.fireDuration = Math.max(0, c.fireDuration - ms);

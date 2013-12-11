@@ -36,6 +36,7 @@ function setup() {
         nextTrapCheck: 1000,
         bargainCooldown: 0,
         pickupCooldown: 0,
+        quaffCooldown: 0,
         speedDuration: 0,
         invisibilityDuration: 0,
         fireDuration: 0,
@@ -314,9 +315,10 @@ function addShot(type, x, y, direction, shooter) {
 }
 
 function quaff() {
-    if (currentLevel.player.inventory.potion) {
+    if (currentLevel.player.inventory.potion && currentLevel.player.quaffCooldown <= 0) {
         currentLevel.player.inventory.potion.type.effect(currentLevel.player);
         delete currentLevel.player.inventory.potion;
+        currentLevel.player.quaffCooldown = 500;
     }
 }
 
