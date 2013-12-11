@@ -23,9 +23,14 @@ function drawCreature(creature, ms) {
 
 function drawParticle(p) {
     if (p == null) { return; }
-    var animMs = totalMs % (p.type.animCycle * p.type.frames.length);
-    var animFrame = Math.floor(animMs / p.type.animCycle);
-    gblit(p.type.frames[animFrame][0], p.type.frames[animFrame][1], p.x * GRID_SIZE + scrollX, p.y * GRID_HEIGHT + scrollY);
+    if (p.type.frames) {
+        var animMs = totalMs % (p.type.animCycle * p.type.frames.length);
+        var animFrame = Math.floor(animMs / p.type.animCycle);
+        gblit(p.type.frames[animFrame][0], p.type.frames[animFrame][1], p.x * GRID_SIZE + scrollX, p.y * GRID_HEIGHT + scrollY - p.z * GRID_HEIGHT + GRID_HEIGHT);
+    } else {
+        c.fillStyle = p.type.colour;
+        c.fillRect(p.x * GRID_SIZE + scrollX, p.y * GRID_HEIGHT + scrollY - p.z * GRID_HEIGHT + GRID_HEIGHT, p.type.xSize * GRID_SIZE, p.type.ySize * GRID_HEIGHT);
+    }
 }
 
 function drawShot(s) {

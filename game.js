@@ -76,10 +76,6 @@ function spawnFlooblers() {
     }
 }
 
-function dieRoll(d) {
-    return Math.random() < 1.0 / d;
-}
-
 var fps = "?";
 var msBuffer = [];
 
@@ -170,19 +166,41 @@ function doDamage(c, ax, ay, axSize, aySize, dmg) {
         var hitMonsters = currentLevel.monsters.filter(function(m) {
             return m.x <= ax + axSize && m.x + m.type.xSize >= ax && m.y <= ay + aySize && m.y + m.type.ySize >= ay;
         });
-        if (hitMonsters.length > 0) {
-            addParticle(particleTypes.blood, ax + axSize * 0.5 - particleTypes.blood.xSize * 0.5, ay + aySize * 0.5 - particleTypes.blood.ySize * 0.5);
-        }
+        /*if (hitMonsters.length > 0) {
+            addParticle(particleTypes.blood, ax + axSize * 0.5, ay + aySize * 0.5);
+        }*/
         hitMonsters.forEach(function(m) {
-            m.hp -= applyArmour(m, dmg);
+            var damageDone = applyArmour(m, dmg);
+            m.hp -= damageDone;
+            for (var i = 0; i < damageDone * 3; i++) {
+                addParticle(particleTypes.bloodSpritz, m.x + m.type.xSize * 0.5, m.y + m.type.ySize * 0.5);
+            }
+            var spark = getArmourSpark(m, dmg);
+            if (spark) {
+                for (var i = 0; i < 3; i++) {
+                    addParticle(spark, m.x + m.type.xSize * 0.5, m.y + m.type.ySize * 0.5);
+                }
+            }
         });
         return hitMonsters.length > 0;
     } else {
         if (currentLevel.player.x <= ax + axSize && currentLevel.player.x + currentLevel.player.type.xSize >= ax && currentLevel.player.y <= ay + aySize && currentLevel.player.y + currentLevel.player.type.ySize >= ay) {
-            addParticle(particleTypes.blood, ax + axSize * 0.5 - particleTypes.blood.xSize * 0.5, ay + aySize * 0.5 - particleTypes.blood.ySize * 0.5);
-            currentLevel.player.hp -= applyArmour(currentLevel.player, dmg);
+            var damageDone = applyArmour(currentLevel.player, dmg);
+            currentLevel.player.hp -= damageDone;
+            for (var i = 0; i < damageDone * 3; i++) {
+                addParticle(particleTypes.bloodSpritz, currentLevel.player.x + currentLevel.player.type.xSize * 0.5, currentLevel.player.y + currentLevel.player.type.ySize * 0.5);
+            }
+            var spark = getArmourSpark(currentLevel.player, dmg);
+            if (spark) {
+                for (var i = 0; i < 3; i++) {
+                    addParticle(spark, currentLevel.player.x + currentLevel.player.type.xSize * 0.5, currentLevel.player.y + currentLevel.player.type.ySize * 0.5);
+                }
+            }
             if (currentLevel.player.fireDuration > 0 && c) {
                 c.hp -= applyArmour(c, {amount: 2, type: damageTypes.magic});
+                for (var i = 0; i < 8; i++) {
+                    addParticle(particleTypes.fire, c.x + c.type.xSize * 0.5, c.y + c.type.ySize * 0.5);
+                }
             }
             return true;
         }
@@ -209,6 +227,16 @@ function applyArmour(c, dmg) {
     }
 }
 
+function getArmourSpark(c, dmg) {
+    if (c.shieldDuration > 0) { return particleTypes.blockMagic; }
+    var armour = c.inventory && c.inventory.armour ? (c.type.armour + c.inventory.armour.type.armourBonus) : c.type.armour;
+    var armourType = c.inventory && c.inventory.armour ? (c.inventory.armour.type.armourType) : c.type.armourType;
+    if (armourType.priority <= dmg.type.priority && dmg.amount > 0 && armour > 0) {
+        return armourType.blockParticle;
+    }
+    return null;
+}
+
 function attack(c, direction) {
     if (c.attackTime > 0 || c.reload > 0) { return; }
     c.standingStill = 0;
@@ -231,6 +259,9 @@ function cast(c) {
     c.attackDirection = c.direction;
     c.attackTime = c.type.attackTime;
     c.spell.cast(c, currentLevel);
+    for (var i = 0; i < 8; i++) {
+        addParticle(particleTypes.spell, c.x + c.type.xSize * 0.5, c.y + c.type.ySize * 0.5);
+    }
 }
 
 function tickTile(t, ms) {
@@ -239,7 +270,10 @@ function tickTile(t, ms) {
 
 function tickCreature(c, ms) {
     if (c.hp <= 0) {
-        addParticle(particleTypes.death, c.x + c.type.xSize * 0.5 - particleTypes.death.xSize * 0.5, c.y + c.type.ySize * 0.5 - particleTypes.death.ySize * 0.5);
+        /*addParticle(particleTypes.death, c.x + c.type.xSize * 0.5, c.y + c.type.ySize * 0.5);*/
+        for (var i = 0; i < 24; i++) {
+            addParticle(particleTypes.bloodSpritz, c.x + c.type.xSize * 0.5, c.y + c.type.ySize * 0.5);
+        }
         return false;
     }
     
@@ -291,7 +325,9 @@ function creatureCorners(c) {
 }
 
 function addParticle(type, x, y) {
-    var p = { type: type, x: x, y: y, life: type.life };
+    var dir = randdir();
+    var spd = randfloat(type.horSpeedRange[0], type.horSpeedRange[1]);
+    var p = { type: type, x: x - type.xSize * 0.5, y: y - type.ySize * 0.5, z: type.z, dx: Math.cos(dir) * spd, dy: Math.sin(dir) * spd, dz: randfloat(type.verSpeedRange[0], type.verSpeedRange[1]), life: randint(type.lifeRange[0], type.lifeRange[1]) };
     if (currentLevel.firstEmptyParticle >= currentLevel.particles.length) {
         currentLevel.particles.push(p);
     } else {
@@ -393,9 +429,14 @@ function update(ms) {
     scrollY = -currentLevel.player.y * GRID_HEIGHT + buffer.height / 2 - GRID_HEIGHT / 2;
     
     for (var i = 0; i < currentLevel.particles.length; i++) {
-        if (currentLevel.particles[i] == null) { continue; }
-        currentLevel.particles[i].life -= ms;
-        if (currentLevel.particles[i].life <= 0) {
+        var p = currentLevel.particles[i];
+        if (p == null) { continue; }
+        p.life -= ms;
+        p.x += p.dx;
+        p.y += p.dy;
+        p.dz += p.type.g;
+        p.z += p.dz;
+        if (p.life <= 0) {
             currentLevel.firstEmptyParticle = Math.min(currentLevel.firstEmptyParticle, i);
             currentLevel.particles[i] = null;
         }
@@ -405,6 +446,9 @@ function update(ms) {
         var s = currentLevel.shots[i];
         if (s == null) { continue; }
         s.life -= ms;
+        if (s.type.tick) {
+            s.type.tick(s, currentLevel, ms);
+        }
         s.x += Math.cos(s.direction) * s.type.speed;
         s.y += Math.sin(s.direction) * s.type.speed;
         if (doDamage(s.shooter, s.x, s.y, s.type.xSize, s.type.ySize, s.type.dmg)) {

@@ -13,6 +13,18 @@ function randitem(l) {
     return l[randint(0, l.length)];
 }
 
+function randdir() {
+    return Math.random() * Math.PI * 2;
+}
+
+function randfloat(from, to) {
+    return from + Math.random() * (to - from);
+}
+
+function dieRoll(d) {
+    return Math.random() < 1.0 / d;
+}
+
 function dirDx(dir) {
     if (dir == EAST) { return 1; }
     if (dir == WEST) { return -1; }
@@ -53,7 +65,15 @@ tileTypes.brazier = {
     animCycle: 300,
     blocksWalk: true,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    tick: function(t, ms) {
+        if (dieRoll(5)) {
+            addParticle(particleTypes.fire, t.x + randfloat(0.2, 0.8), t.y + randfloat(0.2, 0.8));
+        }
+        if (dieRoll(120)) {
+            addParticle(particleTypes.smoke, t.x + randfloat(0.2, 0.8), t.y + randfloat(0.2, 0.8));
+        }
+    }
 };
 
 tileTypes.emptyBrazier = {
@@ -89,7 +109,14 @@ tileTypes.treasureChest = {
     blocksShot: false,
     onCreatureIntersect: function(t, c, l) {
         if (c != l.player) { return; }
-        t.item = getLoot(l.depth);
+        if (dieRoll(4)) {
+            addParticle(particleTypes.fly, t.x + randfloat(0.3, 0.6), t.y + randfloat(0.3, 0.6));
+        } else {
+            t.item = getLoot(l.depth);
+            for (var i = 0; i < 20; i++) {
+                addParticle(particleTypes.loot, t.x + randfloat(0.2, 0.8), t.y + randfloat(0.3, 0.6));
+            }
+        }
         t.type = tileTypes.openTreasureChest;
     }
 };
@@ -137,6 +164,11 @@ tileTypes.trapdoor = {
             currentLevel.map[t.y][t.x].type = tileTypes.openingTrapdoor;
             doDamage(null, t.x, t.y, 1, 1, {amount: 3, type: damageTypes.blunt});
         }
+    },
+    tick: function(t, ms) {
+        if (dieRoll(240)) {
+            addParticle(particleTypes.dust, t.x + 0.5, t.y + 0.5);
+        }
     }
 };
 
@@ -172,7 +204,15 @@ tileTypes.torch = {
     animCycle: 300,
     blocksWalk: true,
     blocksSight: true,
-    blocksShot: true
+    blocksShot: true,
+    tick: function(t, ms) {
+        if (dieRoll(15)) {
+            addParticle(particleTypes.fire, t.x + 0.5, t.y + 0.9);
+        }
+        if (dieRoll(360)) {
+            addParticle(particleTypes.smoke, t.x + 0.5, t.y + 0.9);
+        }
+    }
 };
 
 tileTypes.extinguishedTorch = {
@@ -427,6 +467,9 @@ itemTypes.healingPotion = {
     animCycle: 1000,
     effect: function(c) {
         c.hp = Math.min(c.hp + 4, c.type.hp);
+        for (var i = 0; i < 8; i++) {
+            addParticle(particleTypes.healing, c.x + c.type.xSize * 0.5, c.y + c.type.ySize * 0.5);
+        }
     },
     quality: 1,
     dropChance: 6
@@ -451,6 +494,9 @@ itemTypes.invisibilityPotion = {
     animCycle: 1000,
     effect: function(c) {
         c.invisibilityDuration += 60000;
+        for (var i = 0; i < 8; i++) {
+            addParticle(particleTypes.invisibility, c.x + c.type.xSize * 0.5, c.y + c.type.ySize * 0.5);
+        }
     },
     quality: 3,
     dropChance: 1
@@ -546,6 +592,9 @@ function resetPlayerType() {
             c.invisibilityDuration = Math.max(0, c.invisibilityDuration - ms);
             c.fireDuration = Math.max(0, c.fireDuration - ms);
             c.shieldDuration = Math.max(0, c.shieldDuration - ms);
+            if (c.invisibilityDuration > 0) {
+                addParticle(particleTypes.invisibility, c.x + c.type.xSize * 0.5, c.y + c.type.ySize * 0.5);
+            }
         },
         attackTime: 150,
         reload: 250,
@@ -615,23 +664,192 @@ creatureTypes.floobler = {
 var particleTypes = {};
 
 particleTypes.blood = {
-  name: "blood",
-  life: 300,
-  frames: [[0, 2]],
-  animCycle: 1000,
-  xSize: .375,
-  ySize: .375
+    name: "blood",
+    lifeRange: [300, 400],
+    frames: [[0, 2]],
+    animCycle: 1000,
+    xSize: .375,
+    ySize: .375,
+    horSpeedRange: [0, 0],
+    verSpeedRange: [0, 0],
+    z: 0.5,
+    g: 0
 };
 
 particleTypes.death = {
-  name: "death",
-  life: 300,
-  frames: [[1, 2]],
-  animCycle: 1000,
-  xSize: 0.625,
-  ySize: 0.625
+    name: "death",
+    lifeRange: [300, 400],
+    frames: [[1, 2]],
+    animCycle: 1000,
+    xSize: 0.625,
+    ySize: 0.625,
+    horSpeedRange: [0, 0],
+    verSpeedRange: [0, 0],
+    z: 0.5,
+    g: 0
 };
 
+particleTypes.bloodSpritz = {
+    name: "blood spritz",
+    lifeRange: [200, 700],
+    colour: "#FF0000",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [0.5 * SPF, 1.5 * SPF],
+    verSpeedRange: [-0.5 * SPF, 1 * SPF],
+    z: 0.35,
+    g: -0.1 * SPF
+};
+
+particleTypes.spell = {
+    name: "spell",
+    lifeRange: [100, 1000],
+    colour: "#C996FF",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [1 * SPF, 3 * SPF],
+    verSpeedRange: [2 * SPF, 2 * SPF],
+    z: 0.8,
+    g: 0
+};
+
+particleTypes.healing = {
+    name: "healing",
+    lifeRange: [100, 1000],
+    colour: "#5FFF5F",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [1 * SPF, 3 * SPF],
+    verSpeedRange: [2 * SPF, 2 * SPF],
+    z: 0.8,
+    g: 0
+};
+
+particleTypes.invisibility = {
+    name: "invisibility",
+    lifeRange: [100, 1000],
+    colour: "#b7b7b7",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [1 * SPF, 3 * SPF],
+    verSpeedRange: [2 * SPF, 2 * SPF],
+    z: 0.8,
+    g: 0
+};
+
+particleTypes.dust = {
+    name: "dust",
+    lifeRange: [200, 500],
+    colour: "#6b6863",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [0, 0],
+    verSpeedRange: [0.3 * SPF, 0.5 * SPF],
+    z: 0,
+    g: 0.001 * SPF
+};
+
+particleTypes.blockBlunt = {
+    name: "block blunt",
+    lifeRange: [300, 600],
+    colour: "#8e6954",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [1 * SPF, 2.5 * SPF],
+    verSpeedRange: [-0.5 * SPF, 0.5 * SPF],
+    z: 0.35,
+    g: -0.1 * SPF
+};
+
+damageTypes.blunt.blockParticle = particleTypes.blockBlunt;
+
+particleTypes.blockSharp = {
+    name: "block sharp",
+    lifeRange: [300, 600],
+    colour: "#a4a4ae",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [1 * SPF, 2.5 * SPF],
+    verSpeedRange: [-0.5 * SPF, 0.5 * SPF],
+    z: 0.35,
+    g: -0.1 * SPF
+};
+
+damageTypes.sharp.blockParticle = particleTypes.blockSharp;
+
+particleTypes.blockMagic = {
+    name: "block magic",
+    lifeRange: [300, 600],
+    colour: "#c996ff",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [1 * SPF, 2.5 * SPF],
+    verSpeedRange: [-0.5 * SPF, 0.5 * SPF],
+    z: 0.35,
+    g: -0.1 * SPF
+};
+
+damageTypes.magic.blockParticle = particleTypes.blockMagic;
+
+particleTypes.fire = {
+    name: "fire",
+    lifeRange: [200, 1200],
+    colour: "#fcc100",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [0, 0.2 * SPF],
+    verSpeedRange: [0, 1 * SPF],
+    z: 0.5,
+    g: 0.1 * SPF
+};
+
+particleTypes.fireballFire = {
+    name: "fire",
+    lifeRange: [200, 1200],
+    colour: "#fcc100",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [0, 3 * SPF],
+    verSpeedRange: [-1 * SPF, 1 * SPF],
+    z: 0.3,
+    g: 0.1 * SPF
+};
+
+particleTypes.smoke = {
+    name: "smoke",
+    lifeRange: [600, 2400],
+    colour: "#666666",
+    xSize: 0.25,
+    ySize: 0.25,
+    horSpeedRange: [0, 0.2 * SPF],
+    verSpeedRange: [0, 1 * SPF],
+    z: 0.8,
+    g: 0.05 * SPF
+};
+
+particleTypes.loot = {
+    name: "loot",
+    lifeRange: [600, 1200],
+    colour: "#ededc6",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [0, 0],
+    verSpeedRange: [8 * SPF, 12 * SPF],
+    z: 0.8,
+    g: 0
+};
+
+particleTypes.fly = {
+    name: "fly",
+    lifeRange: [1200, 3600],
+    colour: "#000000",
+    xSize: 0.125,
+    ySize: 0.125,
+    horSpeedRange: [0, 0.2 * SPF],
+    verSpeedRange: [0.2 * SPF, 0.4 * SPF],
+    z: 0.8,
+    g: 0
+};
 
 var shotTypes = {};
 
@@ -643,7 +861,12 @@ shotTypes.fireball = {
     frames: [[0, 3], [1, 3]],
     animCycle: 100,
     xSize: .4375,
-    ySize: .375
+    ySize: .375,
+    tick: function(s, l, ms) {
+        if (dieRoll(5)) {
+            addParticle(particleTypes.fireballFire, s.x + s.type.xSize * 0.5, s.y + s.type.ySize * 0.5);
+        }
+    }
 };
 
 var spellTypes = {};

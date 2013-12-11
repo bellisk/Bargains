@@ -63,12 +63,12 @@ function fillForm(f) {
 var mapForms = [];
 
 mapForms.push({
-    tags: ["central", "pillar"],
+    tags: ["central", "pillar", "obstacle"],
     grid: "B"
 });
 
 mapForms.push({
-    tags: ["central", "pillar"],
+    tags: ["central", "pillar", "obstacle"],
     grid: "U"
 });
 
@@ -118,7 +118,7 @@ mapForms.push({
 });
 
 mapForms.push({
-    tags: ["pillar", "h", "v"],
+    tags: ["pillar", "h", "v", "obstacle"],
     grid: "_"
 });
 
@@ -251,7 +251,7 @@ mapForms.push({
 
 mapForms.push({
     tags: ["9x9"],
-    subs: ["pillar", "maybeTrap", "maybeTrap", "maybeTrap", "maybeTrap"],
+    subs: ["obstacle", "maybeTrap", "maybeTrap", "maybeTrap", "maybeTrap"],
     grid:"\
 -0---12--\n\
 -0-0000--\n\
@@ -271,9 +271,9 @@ mapForms.push({
 ---------\n\
 -03330_--\n\
 -41--4_--\n\
------4_--\n\
 -4-------\n\
--03330---\n\
+-4---4_--\n\
+-03330_--\n\
 ----2----\n\
 --2---2--\n\
 ---------"
