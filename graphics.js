@@ -13,7 +13,7 @@ var keys = {};
 var graphicsImage = new Image();
 graphicsImage.src = "graphicsImage.png";
 
-
+// Draw coordinates of a creature are top left.
 function drawCreature(creature, ms) {
     var imgs = creature.type.image(creature, ms);
     for (var i = 0; i < imgs.length; i++) {
@@ -41,11 +41,23 @@ function drawShot(s) {
 }
 
 function inVisionRange(c, x, y) {
-    return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= c.type.visionRange * c.type.visionRange;
+    var cx = c.x + c.type.xSize / 2;
+    var cy = c.y + c.type.ySize / 2;
+    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= c.type.visionRange * c.type.visionRange) {
+        return isLitFrom(cx, cy, x, y, blocksSightAt);
+    } else {
+        return false;
+    }
 }
 
 function fullyVisible(c, x, y) {
-    return (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= (c.type.visionRange - 1) * (c.type.visionRange - 1);
+    var cx = c.x + c.type.xSize / 2;
+    var cy = c.y + c.type.ySize / 2;
+    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= (c.type.visionRange - 1) * (c.type.visionRange - 1)) {
+        return isFullyLitFrom(cx, cy, x, y, blocksSightAt);
+    } else {
+        return false;
+    }
 }
 
 function pickupable() {
