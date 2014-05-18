@@ -75,19 +75,23 @@ function draw() {
     c.font = "8px Verdana";
     c.textAlign = "left";
 
+    var gridY = Math.round(scrollY);
     for (var y = 0; y < currentLevel.map.length; y++) {
+        var gridX = Math.round(scrollX);
         for (var x = 0; x < currentLevel.map[y].length; x++) {
-            if (!inVisionRange(currentLevel.player, x, y)) { continue; }
-            currentLevel.map[y][x].mapped = true;
-            var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
-            var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
-            gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
-            if (currentLevel.map[y][x].item) {
-                gblit(currentLevel.map[y][x].item.type.frames[animFrame][0], currentLevel.map[y][x].item.type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
+            if (inVisionRange(currentLevel.player, x, y)) {
+                currentLevel.map[y][x].mapped = true;
+                var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
+                var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
+                gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], gridX, gridY);
+                if (currentLevel.map[y][x].item) {
+                    gblit(currentLevel.map[y][x].item.type.frames[animFrame][0], currentLevel.map[y][x].item.type.frames[animFrame][1], gridX, gridY);
+                }
+                if (!fullyVisible(currentLevel.player, x, y)) {
+                    gblit(0, 6, gridX, gridY);
+                }
             }
-            if (!fullyVisible(currentLevel.player, x, y)) {
-                gblit(0, 6, x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
-            }
+            gridX += GRID_SIZE;
         }
         currentLevel.monsters.forEach(function(m) {
             if (inVisionRange(currentLevel.player, m.x, m.y) && Math.floor(m.y + m.type.ySize) == y) { drawCreature(m, totalMs); }
@@ -99,6 +103,7 @@ function draw() {
         currentLevel.particles.forEach(function(p) { 
             if (p != null && inVisionRange(currentLevel.player, p.x, p.y) && Math.floor(p.y + p.type.ySize) == y) { drawParticle(p); }
         });
+        gridY += GRID_HEIGHT;
     }
     
     for (var i = 0; i < currentLevel.player.type.hp; i++) {
