@@ -72,8 +72,6 @@ function pickupable() {
 function draw() {
     c.fillStyle = "black";
     c.fillRect(0, 0, 800, 600);
-    c.font = "8px Verdana";
-    c.textAlign = "left";
 
     var gridY = Math.round(scrollY);
     for (var y = 0; y < currentLevel.map.length; y++) {
@@ -128,47 +126,55 @@ function draw() {
     }
     c.fillStyle = "#bd3737";
     c.fillRect(200 - currentLevel.map[0].length + Math.floor(currentLevel.player.x), GRID_SIZE * 2 + Math.floor(currentLevel.player.y), 1, 1);
-    
-    c.fillStyle = "white";
-    var pAble = pickupable();
-    if (pAble && currentLevel.player.pickupCooldown <= 0) {
-        c.fillText("P: Pick up " + pAble.type.name, 5, buffer.height - 5);
-    } else {
-        c.fillText("WASD: move, IJKL: attack, Space: magic", 5, buffer.height - 5);
-    }
-    for (var i = 0; i < currentLevel.player.spells.length; i++) {
-        c.fillStyle = currentLevel.player.spell == currentLevel.player.spells[i] ? "#ff55ff" : "#aa33aa";
-        c.fillText((i + 1) + " " + currentLevel.player.spells[i].displayName, 5, 24 + i * 12);
-    }
 
     if (currentLevel.bargainDialogue) {
         c.fillStyle = "#444444";
         c.fillRect(15, 15, 170, 120);
         blit(graphicsImage, currentLevel.bargainTile.type.frames[0][0] * (GRID_SIZE + 1), currentLevel.bargainTile.type.frames[0][1] * (GRID_SIZE + 1), GRID_SIZE, GRID_SIZE, 76, 20, 48, 48);
-        c.fillStyle = "white";
-        c.fillText("Do you wish to make this bargain?", 20, 80);
-        c.fillText(currentLevel.bargainTile.gain.desc, 20, 95);
-        c.fillText(currentLevel.bargainTile.loss.desc, 20, 110);
-        c.fillStyle = "yellow";
-        c.fillText("Y / N", 20, 125);
     }
+}
 
-    c.font = "20px Verdana";
-    if (victory) {
-        c.fillStyle = "#77ff77";
-        c.textAlign = "center";
-        c.fillText("VICTORY", buffer.width / 2, buffer.height / 3);
-    }
-    if (defeat) {
-        c.fillStyle = "red";
-        c.textAlign = "center";
-        c.fillText("DEFEAT", buffer.width / 2, buffer.height / 3);
-    }
-    if (victory || defeat) {
-        c.font = "8px Verdana";
-        c.fillText("Press space to continue", buffer.width / 2, buffer.height / 3 + 30);
-    }
-    
+function drawText() {
+  var c = canvasContext;
+  var buffer = canvas;
+  c.font = "24px Verdana";
+  c.textAlign = "left";
+  c.fillStyle = "white";
+  var pAble = pickupable();
+  if (pAble && currentLevel.player.pickupCooldown <= 0) {
+      c.fillText("P: Pick up " + pAble.type.name, 20, buffer.height - 20);
+  } else {
+      c.fillText("WASD: move, IJKL: attack, Space: magic, Q: Quaff potion", 20, buffer.height - 20);
+  }
+  for (var i = 0; i < currentLevel.player.spells.length; i++) {
+      c.fillStyle = currentLevel.player.spell == currentLevel.player.spells[i] ? "#ff55ff" : "#aa33aa";
+      c.fillText((i + 1) + " " + currentLevel.player.spells[i].displayName, 20, 96 + i * 48);
+  }
+  
+  if (currentLevel.bargainDialogue) {
+      c.fillStyle = "white";
+      c.fillText("Do you wish to make this bargain?", 80, 320);
+      c.fillText(currentLevel.bargainTile.gain.desc, 80, 380);
+      c.fillText(currentLevel.bargainTile.loss.desc, 80, 440);
+      c.fillStyle = "yellow";
+      c.fillText("Y / N", 80, 500);
+  }
+  
+  c.font = "80px Verdana";
+  if (victory) {
+      c.fillStyle = "#77ff77";
+      c.textAlign = "center";
+      c.fillText("VICTORY", buffer.width / 2, buffer.height / 3);
+  }
+  if (defeat) {
+      c.fillStyle = "red";
+      c.textAlign = "center";
+      c.fillText("DEFEAT", buffer.width / 2, buffer.height / 3);
+  }
+  if (victory || defeat) {
+      c.font = "32px Verdana";
+      c.fillText("Press space to continue", buffer.width / 2, buffer.height / 3 + 40);
+  }
 }
 
 function canvasKeyDown(e) {
@@ -204,6 +210,7 @@ function nextFrame() {
     update(currentTime - lastUpdate);
     draw();
     canvasContext.drawImage(buffer, 0, 0, 800, 600);
+    drawText();
     lastUpdate = currentTime;
     requestAnimationFrame(nextFrame);
 }
