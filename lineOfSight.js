@@ -26,15 +26,23 @@ function testIntersections() {
 }
 
 function isCornerLit(srcX, srcY, cornerX, cornerY, isSolid) {
+    var srcTileX = Math.floor(srcX);
+    var srcTileY = Math.floor(srcY);
     var xis = xIntersections(srcX, srcY, cornerX, cornerY);
     for (var i = 0; i < xis.length; i++) {
-        if (isSolid(xis[i][0], Math.floor(xis[i][1])) || isSolid(xis[i][0] - 1, Math.floor(xis[i][1]))) {
+        if ((xis[i][0] != srcTileX || Math.floor(xis[i][1]) != srcTileY) && isSolid(xis[i][0], Math.floor(xis[i][1]))) {
+            return false;
+        }
+        if ((xis[i][0] - 1 != srcTileX || Math.floor(xis[i][1]) != srcTileY) && isSolid(xis[i][0] - 1, Math.floor(xis[i][1]))) {
             return false;
         }
     }
     var yis = yIntersections(srcX, srcY, cornerX, cornerY);
     for (var i = 0; i < yis.length; i++) {
-        if (isSolid(Math.floor(yis[i][0]), yis[i][1]) || isSolid(Math.floor(yis[i][0]), yis[i][1] - 1)) {
+        if ((Math.floor(yis[i][0]) != srcTileX || yis[i][1] != srcTileY) && isSolid(Math.floor(yis[i][0]), yis[i][1])) {
+            return false;
+        }
+        if ((Math.floor(yis[i][0]) != srcTileX || yis[i][1] - 1 != srcTileY) && isSolid(Math.floor(yis[i][0]), yis[i][1] - 1)) {
             return false;
         }
     }
