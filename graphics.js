@@ -78,6 +78,7 @@ function draw() {
     for (var y = 0; y < currentLevel.map.length; y++) {
         for (var x = 0; x < currentLevel.map[y].length; x++) {
             if (!inVisionRange(currentLevel.player, x, y)) { continue; }
+            currentLevel.map[y][x].mapped = true;
             var animMs = totalMs % (currentLevel.map[y][x].type.animCycle * currentLevel.map[y][x].type.frames.length);
             var animFrame = Math.floor(animMs / currentLevel.map[y][x].type.animCycle);
             gblit(currentLevel.map[y][x].type.frames[animFrame][0], currentLevel.map[y][x].type.frames[animFrame][1], x * GRID_SIZE + scrollX, y * GRID_HEIGHT + scrollY);
@@ -109,6 +110,19 @@ function draw() {
         var item = currentLevel.player.inventory[k];
         gblit(item.type.frames[0][0], item.type.frames[0][1], buffer.width - (itemX++ + 1) * GRID_SIZE, GRID_SIZE);
     }
+    
+    for (var y = 0; y < currentLevel.map.length; y++) {
+        for (var x = 0; x < currentLevel.map[y].length; x++) {
+            if (currentLevel.map[y][x].mapped) {
+                c.fillStyle = currentLevel.map[y][x].type.minimapColor;
+            } else {
+                c.fillStyle = "black";
+            }
+            c.fillRect(200 - currentLevel.map[y].length + x, GRID_SIZE * 2 + y, 1, 1);
+        }
+    }
+    c.fillStyle = "#bd3737";
+    c.fillRect(200 - currentLevel.map[0].length + Math.floor(currentLevel.player.x), GRID_SIZE * 2 + Math.floor(currentLevel.player.y), 1, 1);
     
     c.fillStyle = "white";
     var pAble = pickupable();

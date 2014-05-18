@@ -45,7 +45,8 @@ tileTypes.stoneFloor = {
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    minimapColor: "#554e3f"
 };
 
 tileTypes.stoneWall = {
@@ -55,7 +56,8 @@ tileTypes.stoneWall = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: true,
-    blocksShot: true
+    blocksShot: true,
+    minimapColor: "#717175"
 };
 
 tileTypes.brazier = {
@@ -66,6 +68,7 @@ tileTypes.brazier = {
     blocksWalk: true,
     blocksSight: false,
     blocksShot: false,
+    minimapColor: "#dd7000",
     tick: function(t, ms) {
         if (dieRoll(5)) {
             addParticle(particleTypes.fire, t.x + randfloat(0.2, 0.8), t.y + randfloat(0.2, 0.8));
@@ -83,7 +86,8 @@ tileTypes.emptyBrazier = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    minimapColor: "#30302d"
 };
 
 tileTypes.stairsDown = {
@@ -94,6 +98,7 @@ tileTypes.stairsDown = {
     blocksWalk: false,
     blocksSight: false,
     blocksShot: false,
+    minimapColor: "#363430",
     onCreatureIntersect: function(t, c, l) {
         if (c == l.player) { victory = true; }
     }
@@ -107,6 +112,7 @@ tileTypes.treasureChest = {
     blocksWalk: false,
     blocksSight: false,
     blocksShot: false,
+    minimapColor: "#a19b43",
     onCreatureIntersect: function(t, c, l) {
         if (c != l.player) { return; }
         if (dieRoll(4)) {
@@ -128,7 +134,8 @@ tileTypes.openTreasureChest = {
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    minimapColor: "#96913f"
 };
 
 tileTypes.horizBars = {
@@ -138,7 +145,8 @@ tileTypes.horizBars = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
-    blocksShot: true
+    blocksShot: true,
+    minimapColor: "#777784"
 };
 
 tileTypes.vertBars = {
@@ -148,7 +156,8 @@ tileTypes.vertBars = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
-    blocksShot: true
+    blocksShot: true,
+    minimapColor: "#777784"
 };
 
 tileTypes.trapdoor = {
@@ -159,6 +168,7 @@ tileTypes.trapdoor = {
     blocksWalk: false,
     blocksSight: false,
     blocksShot: false,
+    minimapColor: "#554e3f",
     onCreatureIntersect: function(t, c, l) {
         if (c == currentLevel.player) {
             currentLevel.map[t.y][t.x].type = tileTypes.openingTrapdoor;
@@ -179,7 +189,8 @@ tileTypes.openTrapdoor = {
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    minimapColor: "#493337"
 };
 
 tileTypes.openingTrapdoor = {
@@ -190,6 +201,7 @@ tileTypes.openingTrapdoor = {
     blocksWalk: false,
     blocksSight: false,
     blocksShot: false,
+    minimapColor: "#493337",
     tick: function(t, ms) {
         if (creatureCorners(currentLevel.player).indexOf(t) == -1) {
             currentLevel.map[t.y][t.x].type = tileTypes.openTrapdoor;
@@ -205,6 +217,7 @@ tileTypes.torch = {
     blocksWalk: true,
     blocksSight: true,
     blocksShot: true,
+    minimapColor: "#717175",
     tick: function(t, ms) {
         if (dieRoll(15)) {
             addParticle(particleTypes.fire, t.x + 0.5, t.y + 0.9);
@@ -222,7 +235,8 @@ tileTypes.extinguishedTorch = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: true,
-    blocksShot: true
+    blocksShot: true,
+    minimapColor: "#717175"
 };
 
 tileTypes.basin = {
@@ -232,7 +246,8 @@ tileTypes.basin = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    minimapColor: "#707fb8"
 };
 
 tileTypes.emptyBasin = {
@@ -242,7 +257,8 @@ tileTypes.emptyBasin = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    minimapColor: "#30302d"
 };
 
 tileTypes.pit = {
@@ -252,7 +268,8 @@ tileTypes.pit = {
     animCycle: 1000,
     blocksWalk: true,
     blocksSight: false,
-    blocksShot: false
+    blocksShot: false,
+    minimapColor: "#191816"
 };
 
 tileTypes.usedEyelessOne = {
@@ -262,7 +279,8 @@ tileTypes.usedEyelessOne = {
     animCycle: 1000,
     blocksWalk: false,
     blocksSight: true,
-    blocksShot: true
+    blocksShot: true,
+    minimapColor: "#3d3b36"
 };
 
 tileTypes.eyelessOne = {
@@ -273,6 +291,7 @@ tileTypes.eyelessOne = {
     blocksWalk: false,
     blocksSight: true,
     blocksShot: true,
+    minimapColor: "#c993ff",
     turnsInto: tileTypes.usedEyelessOne,
     onCreatureIntersect: function(t, c, l) {
         if (c != currentLevel.player) { return; }

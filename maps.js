@@ -14,7 +14,7 @@ function generateMap(depth) {
             if (!letterToTileType[cell]) {
                 console.log(cell);
             }
-            return { type: letterToTileType[cell], item: null };
+            return { type: letterToTileType[cell], item: null, mapped: false };
         });
     });
     for (var y = 0; y < currentLevel.map.length; y++) {
